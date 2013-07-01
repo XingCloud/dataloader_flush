@@ -11,12 +11,12 @@ workDir=/home/hadoop/xa
 logDir=${workDir}/log
 runJar=${workDir}/runJar
 
-jar="dataloader_flush_fix.jar";
+jar="flush-1.0.0-jar-with-dependencies.jar";
 testjar="dataloader_flush_fix_test.jar";
 
 pwd=$(cd "$(dirname "$0")"; pwd)
 nowDir=`dirname $pwd`
-dist=${nowDir}/dist
+dist=${nowDir}/target
 deployBin=${nowDir}/bin/deployBin
 
 
@@ -31,11 +31,7 @@ fi
 
 chmod 777 -R ${logDir}
 cd ${nowDir}
-svn up src
-svn up lib
-svnRevison=`svn info ${nowDir} |grep Revision|awk '{print $2;}'`
-svnUrl=`svn info ${nowDir} |grep URL|awk '{print $2;}'`
-echo deploy the URL:${svnUrl} Revsion:${svnRevison} at ${time} >> ${logDir}/deploy.log
+git pull
 
 
 #ant
@@ -44,7 +40,9 @@ then
 	mkdir -p $dist
 fi
 cd ${nowDir}
-ant 
+mvn clean
+mvn package
+
 #***************
 # test jar
 
@@ -53,12 +51,13 @@ ant
 
 #***************
 #copy the jar 
-
-hostliststr="192.168.1.141,192.168.1.142,192.168.1.143,192.168.1.144,192.168.1.145,192.168.1.147,192.168.1.148,192.168.1.150,192.168.1.151,192.168.1.152,192.168.1.134"
+#hostliststr="192.168.1.142"
+hostliststr="192.168.1.141,192.168.1.142,192.168.1.143,192.168.1.144,192.168.1.145"
 host=`echo ${hostliststr}|awk '{split($1,a,",");for(key in a)print a[key];}'`
 for node in ${host} 
 do
 	echo ${node}
+        echo ${dist}/${jar} ${node}${runJar}/${testjar}
 	scp  ${dist}/${jar} ${node}:${runJar}/${testjar}
 done
 

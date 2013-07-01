@@ -15,7 +15,7 @@ public class Log4jProperties {
     static private Properties properties = new Properties();
 
     static public void init() {
-        loadProperties("log4j.properties");
+//        loadProperties("log4j.properties");
         loadProperties("xingcloudlog4j.properties");
         PropertyConfigurator.configure(Log4jProperties.getProperties());
     }
