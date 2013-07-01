@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Root>
+	<redis>
+        <host>192.168.1.145</host>
+        <port>6379</port>
+	</redis>
+	<redis_sharded>
+		<shard>
+			<host>192.168.1.145</host>
+        	<port>6379</port>
+        </shard>
+        <shard>
+        	<host>192.168.1.145</host>
+        	<port>6380</port>
+        </shard>
+        <shard>
+			<host>192.168.1.145</host>
+        	<port>6381</port>
+        </shard>
+        <shard>
+        	<host>192.168.1.145</host>
+        	<port>6382</port>
+        </shard>
+        <common>
+        	<max_active>128</max_active>
+        	<max_idle>32</max_idle>
+        	<max_wait>-1</max_wait>
+        	<expire>300</expire>
+        	<timeout>10000</timeout>
+        </common>
+    </redis_sharded>	
+</Root>

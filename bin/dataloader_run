@@ -1,0 +1,16 @@
+#!/bin/sh
+
+memarg="-server -Xms2G -Xmx2G"
+gcarg="-XX:SurvivorRatio=4 -XX:+UseConcMarkSweepGC -XX:NewSize=64m -XX:+UseAdaptiveSizePolicy -XX:-ExplicitGCInvokesConcurrent -XX:+UseCMSCompactAtFullCollection -XX:CMSFullGCsBeforeCompaction=2"
+verboses="-XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintHeapAtGC -XX:+PrintGCApplicationStoppedTime"
+main=com.xingcloud.dataloader.DataLoader
+jar=
+fileencoding="-Dfile.encoding=UTF-8"
+
+#nohup java $fileencoding $memarg $gcarg $verboses -classpath $classpath $main >/dev/null 2>&1  &
+nohup hadoop -jar $fileencoding $memarg $gcarg  -classpath $classpath $main  &
+
+nodelist=(50.22.226.219 50.22.226.220 50.22.226.221 50.22.226.222) 
+for $node in ${nodelist} do
+	ssh ${node} nohup /usr/lib/bin/hadoop jar $fileencoding $memarg $gcarg  -classpath $classpath $main  &;
+done

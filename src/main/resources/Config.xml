@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Root>
+    <Local>/home/hadoop/</Local>
+    <mail>
+        <mail_to>analysis@xingcloud.com
+        </mail_to>
+        <mail_from>xamonitor@xingcloud.com</mail_from>
+        <username>xamonitor@xingcloud.com</username>
+        <password>22C1NziwxZI5F</password>
+    </mail>
+    <!-- For local test -->
+    <!--
+        <mongodb>
+        <host>10.1.138.49</host>
+        <port>27021</port>
+        <pool_size>64</pool_size>
+        <dbname>user_info</dbname>
+        <collname>user_hash</collname>
+        <eventmeataname>events_list</eventmeataname>
+        </mongodb>
+    -->
+    <!-- For production -->
+    <mongodb>
+        <host>192.168.1.144</host>
+        <port>27021</port>
+        <pool_size>150</pool_size>
+        <dbname>user_info</dbname>
+        <max_wait>5000</max_wait>
+        <socket_timeout>0</socket_timeout>
+        <connection_timeout>15000</connection_timeout>
+        <threads_allowed_to_block_for_connection_multiplier>5000
+        </threads_allowed_to_block_for_connection_multiplier>
+        <dbname>user_info</dbname>
+        <collname>user_hash</collname>
+        <eventmeataname>events_list</eventmeataname>
+    </mongodb>
+
+    <redis>
+        <host>192.168.1.145</host>
+        <port>6379</port>
+        <max_active>1000</max_active>
+        <max_idle>400</max_idle>
+        <max_wait>-1</max_wait>
+        <expire>300</expire>
+        <timeout>10000</timeout>
+    </redis>
+    <mysql>
+        <host>192.168.1.134</host>
+        <port>3306</port>
+        <user>xingyun</user>
+        <passwd>xa</passwd>
+        <max_active>10</max_active>
+        <init_conn>2</init_conn>
+        <evictable_idle_time>1800000</evictable_idle_time>
+        <db>user_info</db>
+    </mysql>
+
+    <query>
+        <debug>false</debug>
+    </query>
+
+    <query>
+        <usemd5>true</usemd5>
+    </query>
+
+    <thread>
+        <max>150</max>
+        <monitor>10</monitor>
+        <cache-put>20</cache-put>
+    </thread>
+
+</Root>
+
+
+
+
