@@ -62,7 +62,7 @@ public class Constants {
 
   public static final int SEND_FINISH_TRY_COUND = 100;
 
-  public static final int USER_WAITOFFLINE_MIN = 240;
+  public static final int USER_WAITOFFLINE_MIN = 120;
 
   public static final int USER_WAITOFFLINE_SLEEP_INTERVAL_MIN = 10;
 
