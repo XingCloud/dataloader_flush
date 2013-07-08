@@ -48,14 +48,14 @@ public class UserTailer_BulkLoad extends Tail {
     analysisUser(strings, usersMap, traceableProperties);
 
     for (Map.Entry<String, Map<String, Map<String, List<Put>>>> entry : traceableProperties.entrySet()) {
-      System.out.println(entry.getKey());
+      LOG.info(entry.getKey());
       for (Map.Entry<String, Map<String, List<Put>>> nodeEntry : entry.getValue().entrySet()) {
-        System.out.println("\t" + nodeEntry.getKey());
+        LOG.info("\t" + nodeEntry.getKey());
         for (Map.Entry<String, List<Put>> pEntry : nodeEntry.getValue().entrySet()) {
-          System.out.println("\t\t" + pEntry.getKey());
+          LOG.info("\t\t" + pEntry.getKey());
           for (Put put : pEntry.getValue()) {
             byte[] inneruid = {put.getRow()[1], put.getRow()[2], put.getRow()[3], put.getRow()[4]};
-            System.out.println("\t\t\t" + Bytes.toInt(inneruid) + "\t" + UidMappingUtil.getInstance().hash(Bytes.toInt
+            LOG.info("\t\t\t" + Bytes.toInt(inneruid) + "\t" + UidMappingUtil.getInstance().hash(Bytes.toInt
                     (inneruid)) + "\t" + Bytes.toString(put.get(Bytes.toBytes(Constants.UP_COLUMNFAMILY),
                     Bytes.toBytes(Constants.UP_COLUMNFAMILY)).get(0).getValue()));
           }
