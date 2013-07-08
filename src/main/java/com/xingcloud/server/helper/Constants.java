@@ -55,6 +55,8 @@ public class Constants {
 
   public static final String USER_TAIL_CONF_PATH = "/data/log/userfixconfig";
 
+  public static final String HBASEUP_TAIL_CONF_PATH = "/data/log/hbaseupfixconfig";
+
 
   public static final String USER_LOAD_PATH = "/data/log/userload/";
 
