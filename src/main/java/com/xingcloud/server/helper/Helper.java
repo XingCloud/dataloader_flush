@@ -19,14 +19,33 @@ import java.util.*;
  * Time: 下午2:14
  */
 public class Helper {
+
   private static final Log LOG = LogFactory.getLog(Helper.class);
 
+  private static final int ONE_DAY_SECONDS = 24 * 3600;
+
+  public static final long FUTURE_TS_REFERENCE = 4102416000000l;//2100的时间戳
 
   public static String getDate(long timestamp) {
     SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
     df.setTimeZone(TimeZone.getTimeZone(Constants.TIMEZONE));
     Date date = new Date(timestamp);
     return df.format(date);
+  }
+
+  public static long getCurrentDayBeginTimestamp() {
+    long currentTsSecond = System.currentTimeMillis() / 1000;
+    return (currentTsSecond - currentTsSecond % ONE_DAY_SECONDS) * 1000;
+  }
+
+  /**
+   * 用2100年时间戳 - 本来的时间戳，作为once的时间戳，让第一次出现的ts变为最大的一个，实现once的目的
+   *
+   * @return
+   */
+  public static long transformOnceTimestamp() {
+
+    return FUTURE_TS_REFERENCE - System.currentTimeMillis();
   }
 
 
@@ -223,5 +242,17 @@ public class Helper {
       exch(list, i, r);
     }
 
+  }
+
+
+  public static void main(String[] args) throws InterruptedException {
+    long t1 = getCurrentDayBeginTimestamp();
+    System.out.println(t1);
+    Thread.sleep(3 * 1000);
+    long t2 = getCurrentDayBeginTimestamp();
+    System.out.println(t2);
+
+    System.out.println(getDate(t1));
+    System.out.println(getDate(t2));
   }
 }

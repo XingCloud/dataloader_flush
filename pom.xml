@@ -38,9 +38,57 @@
 
         <dependency>
             <groupId>org.apache.hbase</groupId>
-            <artifactId>hbase-0.94.6-hadoop-2.0</artifactId>
-            <version>0.94.6</version>
+            <artifactId>hbase-client-0.95.1-hadoop-2.0</artifactId>
+            <version>0.95.1</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-common-0.95.1-hadoop-2.0</artifactId>
+            <version>0.95.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-server-0.95.1-hadoop-2.0</artifactId>
+            <version>0.95.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-it-0.95.1-hadoop-2.0</artifactId>
+            <version>0.95.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-protocol-0.95.1-hadoop-2.0</artifactId>
+            <version>0.95.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-prefix-tree-0.95.1-hadoop-2.0</artifactId>
+            <version>0.95.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-hadoop2-compat-0.95.1-hadoop-2.0</artifactId>
+            <version>0.95.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-hadoop-compat-0.95.1-hadoop-2.0</artifactId>
+            <version>0.95.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.cloudera.htrace</groupId>
+            <artifactId>htrace</artifactId>
+            <version>1.5</version>
+        </dependency>
+
 
         <!-- db dependencies -->
         <dependency>
@@ -69,6 +117,11 @@
             <groupId>com.xingcloud</groupId>
             <artifactId>hashutil</artifactId>
             <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.xingcloud.xa</groupId>
+            <artifactId>userprops_meta_util</artifactId>
+            <version>0.1.0</version>
         </dependency>
     </dependencies>
 

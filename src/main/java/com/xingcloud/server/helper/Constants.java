@@ -17,6 +17,8 @@ public class Constants {
 
   public static final int USER_ITEM_NUM = 3;
 
+  public static final String UP_COLUMNFAMILY = "value";
+
   public static final String columnFamily = "val";
 
   public static boolean deuTableWalSwitch = false;
@@ -68,6 +70,7 @@ public class Constants {
 
   public static final int OFFLINE_DB = 15;
 
+  public static final int NULL_MAXPROPERTYID = -1;
 
   public static final int MYSQL_BL_THREADS = 6;
 
