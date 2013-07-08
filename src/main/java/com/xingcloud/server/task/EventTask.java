@@ -5,6 +5,7 @@ import com.xingcloud.server.helper.Helper;
 import com.xingcloud.xa.uidmapping.UidMappingUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.hbase.client.Durability;
 import org.apache.hadoop.hbase.client.HConnectionManager;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
@@ -45,7 +46,8 @@ public class EventTask implements Runnable {
             for (Event event : events) {
                 String hbaseAddress = UidMappingUtil.getInstance().hash(event.getSeqUid());
                 Put put = new Put(event.getRowKey());
-                put.setWriteToWAL(Constants.deuTableWalSwitch);
+              put.setDurability(Durability.SKIP_WAL);
+//                put.setWriteToWAL(Constants.deuTableWalSwitch);
                 put.add(Constants.columnFamily.getBytes(), Constants.columnFamily.getBytes(), event.getTimeStamp(),
                         Bytes.toBytes(event.getValue()));
                 List<Put> puts = putsMap.get(hbaseAddress);
@@ -81,7 +83,8 @@ public class EventTask implements Runnable {
                         }
                         LOG.error(project + entry.getKey() + e.getMessage(), e);
                         if (e.getMessage().contains("HConnectionImplementation") && e.getMessage().contains("closed")) {
-                            HConnectionManager.deleteConnection(HBaseConf.getInstance().getHBaseConf(entry.getKey()), true);
+                          HConnectionManager.deleteConnection(HBaseConf.getInstance().getHBaseConf(entry.getKey()));
+//                            HConnectionManager.deleteConnection(HBaseConf.getInstance().getHBaseConf(entry.getKey()), true);
                             LOG.warn("delete connection to " + entry.getKey());
                         }
                         putHbase = true;
