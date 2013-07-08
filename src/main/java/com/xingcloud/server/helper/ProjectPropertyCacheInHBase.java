@@ -52,7 +52,7 @@ public class ProjectPropertyCacheInHBase {
     return pid_UserProps.get(project).get(property).getPropFunc();
   }
 
-  public static  Map<String, UserProp> resetUserProps(String project) throws IOException {
+  public   Map<String, UserProp> resetUserProps(String project) throws IOException {
     LOG.info("enter resetUserProps"+project);
     List<UserProp> userProps = UserProps_DEU_Util.getInstance().getUserProps(project);
     Map<String, UserProp> userPropMap = new HashMap<String, UserProp>();

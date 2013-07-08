@@ -39,6 +39,8 @@ public class Constants {
 
   public static int EVENT_ONCE_READ = 6 * 10000;
 
+  public static int HBASEUP_ONCE_READ = 12 * 10000;
+
   public static int USER_ONCE_READ = 3 * 10000;
 
   public static int USER_BULK_LOAD_ONCE_READ = 63 * 10000;

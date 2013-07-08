@@ -9,6 +9,7 @@ import com.xingcloud.userprops_meta_util.UpdateFunc;
 import com.xingcloud.xa.uidmapping.UidMappingUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.hbase.client.Durability;
 import org.apache.hadoop.hbase.client.Increment;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Row;
@@ -33,7 +34,7 @@ public class HBaseUPTailer extends Tail {
 
   public HBaseUPTailer(String configPath) {
     super(configPath);
-    setBatchSize(Constants.EVENT_ONCE_READ);
+    setBatchSize(Constants.HBASEUP_ONCE_READ);
     setLogProcessPerBatch(Constants.WRITE_SENDPROCESS_PER_BATCH);
     LOG.info(configPath);
     LOG.info(this.datafile);
@@ -119,16 +120,19 @@ public class HBaseUPTailer extends Tail {
                 Put put = new Put(shortenUid);
                 put.add(Bytes.toBytes(Constants.UP_COLUMNFAMILY), Bytes.toBytes(Constants.UP_COLUMNFAMILY),
                         Helper.transformOnceTimestamp(), Bytes.toBytes(value));
+                put.setDurability(Durability.SKIP_WAL);
                 rows.add(put);
               } else if (upUpdateFunc == UpdateFunc.cover) {
                 Put put = new Put(shortenUid);
                 put.add(Bytes.toBytes(Constants.UP_COLUMNFAMILY), Bytes.toBytes(Constants.UP_COLUMNFAMILY),
                         Helper.getCurrentDayBeginTimestamp(), Bytes.toBytes(value));
+                put.setDurability(Durability.SKIP_WAL);
                 rows.add(put);
               } else if (upUpdateFunc == UpdateFunc.inc) {
                 Increment increment = new Increment(shortenUid);
                 increment.addColumn(Bytes.toBytes(Constants.UP_COLUMNFAMILY), Bytes.toBytes(Constants.UP_COLUMNFAMILY),
                         Long.parseLong(value));
+                increment.setDurability(Durability.SKIP_WAL);
                 rows.add(increment);
               }
             }

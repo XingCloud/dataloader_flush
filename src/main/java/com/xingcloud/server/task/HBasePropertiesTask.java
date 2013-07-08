@@ -57,6 +57,11 @@ public class HBasePropertiesTask implements Runnable {
         }
       }
     }
+    try {
+      ProjectPropertyCacheInHBase.getInstance().resetUserProps(project);
+    } catch (IOException e) {
+      LOG.error(e.getMessage(), e);
+    }
   }
 
   public static String getTableName(String project, String propertyName) {
