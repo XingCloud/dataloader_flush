@@ -47,32 +47,17 @@ public class HBaseUPTailer extends Tail {
     try {
       FlushExecutor eventExecutor = new FlushExecutor();
       Map<String, Map<String, Map<String, List<Row>>>> userProperties = analysisUserUP(logs);
-      for(Map.Entry<String, Map<String, Map<String, List<Row>>>> entry:userProperties.entrySet()){
-        LOG.info(entry.getKey());
-        for(Map.Entry<String, Map<String, List<Row>>> nodeEntry:entry.getValue().entrySet()){
-          LOG.info("\t"+nodeEntry.getKey());
-          for(Map.Entry<String,List<Row>> propEntry:nodeEntry.getValue().entrySet()){
-            LOG.info("\t\t"+propEntry);
-            for(Row row:propEntry.getValue()) {
-              byte[] inneruid = {row.getRow()[1], row.getRow()[2], row.getRow()[3], row.getRow()[4]};
-              LOG.info("\t\t\t"+ Bytes.toInt(inneruid));
-
-            }
-          }
-        }
+      for (Map.Entry<String, Map<String, Map<String, List<Row>>>> entry : userProperties.entrySet()) {
+        HBasePropertiesTask hBasePropertiesTask = new HBasePropertiesTask(entry.getKey(), entry.getValue());
+        eventExecutor.execute(hBasePropertiesTask);
       }
-
-//      for (Map.Entry<String, Map<String, Map<String, List<Row>>>> entry : userProperties.entrySet()) {
-//        HBasePropertiesTask hBasePropertiesTask = new HBasePropertiesTask(entry.getKey(), entry.getValue());
-//        eventExecutor.execute(hBasePropertiesTask);
-//      }
-//      eventExecutor.shutdown();
-//      boolean result = eventExecutor.awaitTermination(Constants.EXECUTOR_TIME_MIN, TimeUnit.MINUTES);
-//      if (!result) {
-//        LOG.warn("HBaseUPTailerExecutor timeout....throws this exception to tailer and quit this.");
-//        eventExecutor.shutdownNow();
-//        throw new RuntimeException("HBaseUPTailerExecutor timeout.");
-//      }
+      eventExecutor.shutdown();
+      boolean result = eventExecutor.awaitTermination(Constants.EXECUTOR_TIME_MIN, TimeUnit.MINUTES);
+      if (!result) {
+        LOG.warn("HBaseUPTailerExecutor timeout....throws this exception to tailer and quit this.");
+        eventExecutor.shutdownNow();
+        throw new RuntimeException("HBaseUPTailerExecutor timeout.");
+      }
     } catch (Exception e) {
       LOG.error(e.getMessage());
       throw new RuntimeException(e.getMessage());

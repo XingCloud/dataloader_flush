@@ -60,6 +60,8 @@ public class HBasePropertiesTask implements Runnable {
   }
 
   public static String getTableName(String project, String propertyName) {
-    return "property_" + project + "_" + ProjectPropertyCacheInHBase.getInstance().getPropertyID(project, propertyName);
+    return "property_" + project + "_" + ProjectPropertyCacheInHBase.getInstance().getPropertyID(project,
+            propertyName)+"_"+ProjectPropertyCacheInHBase.getInstance().getPropertyFunc(project,
+            propertyName).name().substring(0,1);
   }
 }
