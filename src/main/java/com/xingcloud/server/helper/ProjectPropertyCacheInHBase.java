@@ -42,13 +42,6 @@ public class ProjectPropertyCacheInHBase {
       if (userProp != null)
         returnID = userProp.getId();
 
-      //如果在已有的userprop里找不到 ，重置UserProps，再查找一次
-      if (returnID == Constants.NULL_MAXPROPERTYID)
-        userPropMap = resetUserProps(project);
-      userProp = userPropMap.get(property);
-      if (userProp != null)
-        returnID = userProp.getId();
-
     } catch (IOException e) {
       LOG.error(project + " get prop id error. " + property);
     }
@@ -59,14 +52,12 @@ public class ProjectPropertyCacheInHBase {
     return pid_UserProps.get(project).get(property).getPropFunc();
   }
 
-  private Map<String, UserProp> resetUserProps(String project) throws IOException {
+  public static  Map<String, UserProp> resetUserProps(String project) throws IOException {
     LOG.info("enter resetUserProps"+project);
     List<UserProp> userProps = UserProps_DEU_Util.getInstance().getUserProps(project);
     Map<String, UserProp> userPropMap = new HashMap<String, UserProp>();
     for (UserProp userProp : userProps) {
-      userPropMap.put(userProp.getPropName(), userProp);
-      LOG.info(userProp.getPropName() + "\t" + userProp.getId());
-    }
+      userPropMap.put(userProp.getPropName(), userProp);    }
 
     pid_UserProps.put(project, userPropMap);
     return userPropMap;

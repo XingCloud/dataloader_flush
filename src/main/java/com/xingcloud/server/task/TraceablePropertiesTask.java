@@ -31,8 +31,9 @@ public class TraceablePropertiesTask implements Runnable {
   @Override
   public void run() {
     for (Map.Entry<String, Map<String, Map<String, List<Put>>>> entry : traceableProperties.entrySet()) {
-      LOG.info(entry.getKey());
-      Configuration configuration = HBaseConf.getInstance().getHBaseConf(entry.getKey());
+//      LOG.info(entry.getKey());
+//      Configuration configuration = HBaseConf.getInstance().getHBaseConf(entry.getKey());
+      Configuration configuration = HBaseConf.getInstance().getHBaseConf("192.168.1.25");
       for (Map.Entry<String, Map<String, List<Put>>> pEntry : entry.getValue().entrySet()) {
         String pid = pEntry.getKey();
         for (Map.Entry<String, List<Put>> propertyEntry : pEntry.getValue().entrySet()) {
@@ -56,6 +57,7 @@ public class TraceablePropertiesTask implements Runnable {
         }
       }
     }
+
   }
 
   public static String getTableName(String project, String propertyName) {
