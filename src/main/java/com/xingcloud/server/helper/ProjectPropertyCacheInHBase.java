@@ -57,7 +57,8 @@ public class ProjectPropertyCacheInHBase {
     List<UserProp> userProps = UserProps_DEU_Util.getInstance().getUserProps(project);
     Map<String, UserProp> userPropMap = new HashMap<String, UserProp>();
     for (UserProp userProp : userProps) {
-      userPropMap.put(userProp.getPropName(), userProp);    }
+      userPropMap.put(userProp.getPropName(), userProp);
+    }
 
     pid_UserProps.put(project, userPropMap);
     return userPropMap;
