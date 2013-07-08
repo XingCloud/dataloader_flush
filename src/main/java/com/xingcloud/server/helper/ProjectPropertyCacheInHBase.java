@@ -60,6 +60,7 @@ public class ProjectPropertyCacheInHBase {
   }
 
   private Map<String, UserProp> resetUserProps(String project) throws IOException {
+    LOG.info("enter resetUserProps"+project);
     List<UserProp> userProps = UserProps_DEU_Util.getInstance().getUserProps(project);
     Map<String, UserProp> userPropMap = new HashMap<String, UserProp>();
     for (UserProp userProp : userProps) {

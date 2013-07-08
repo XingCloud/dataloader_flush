@@ -100,6 +100,7 @@ public class UserTailer_BulkLoad extends Tail {
         LOG.warn(log);
         continue;
       }
+      LOG.info(log);
       long samplingUid = UidMappingUtil.getInstance().decorateWithMD5(Long.valueOf(tmps[1]));
       List<String> propKeys = new ArrayList<String>();
       List<String> propValues = new ArrayList<String>();
