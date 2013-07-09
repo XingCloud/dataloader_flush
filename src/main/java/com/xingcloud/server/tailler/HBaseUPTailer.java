@@ -5,14 +5,15 @@ import com.xingcloud.server.helper.Helper;
 import com.xingcloud.server.helper.ProjectPropertyCacheInHBase;
 import com.xingcloud.server.task.FlushExecutor;
 import com.xingcloud.server.task.HBasePropertiesTask;
+import com.xingcloud.userprops_meta_util.Base64Util_Helper;
 import com.xingcloud.userprops_meta_util.UpdateFunc;
 import com.xingcloud.xa.uidmapping.UidMappingUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.client.Durability;
-import org.apache.hadoop.hbase.client.Increment;
+
 import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Row;
+
 import org.apache.hadoop.hbase.util.Bytes;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -21,7 +22,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * User: IvyTang
@@ -47,18 +47,28 @@ public class HBaseUPTailer extends Tail {
     long currentTime = System.currentTimeMillis();
     try {
       FlushExecutor eventExecutor = new FlushExecutor();
-      Map<String, Map<String, Map<String, List<Row>>>> userProperties = analysisUserUP(logs);
-      for (Map.Entry<String, Map<String, Map<String, List<Row>>>> entry : userProperties.entrySet()) {
-        HBasePropertiesTask hBasePropertiesTask = new HBasePropertiesTask(entry.getKey(), entry.getValue());
-        eventExecutor.execute(hBasePropertiesTask);
+      Map<String, Map<String, List<Put>>> userProperties = analysisUserUP(logs);
+      for (Map.Entry<String, Map<String, List<Put>>> entry : userProperties.entrySet()) {
+        System.out.println(entry.getValue());
+        for (Map.Entry<String, List<Put>> pEntry : entry.getValue().entrySet()) {
+          System.out.println("\t" + pEntry.getKey());
+          for (Put put : pEntry.getValue()) {
+            System.out.println("\t\t" + Bytes.toString(put.getRow()) + "\t" + put.toJSON());
+
+          }
+        }
       }
-      eventExecutor.shutdown();
-      boolean result = eventExecutor.awaitTermination(Constants.EXECUTOR_TIME_MIN, TimeUnit.MINUTES);
-      if (!result) {
-        LOG.warn("HBaseUPTailerExecutor timeout....throws this exception to tailer and quit this.");
-        eventExecutor.shutdownNow();
-        throw new RuntimeException("HBaseUPTailerExecutor timeout.");
-      }
+//      for (Map.Entry<String, Map<String, List<Put>>> entry : userProperties.entrySet()) {
+//        HBasePropertiesTask hBasePropertiesTask = new HBasePropertiesTask(entry.getKey(), entry.getValue());
+//        eventExecutor.execute(hBasePropertiesTask);
+//      }
+//      eventExecutor.shutdown();
+//      boolean result = eventExecutor.awaitTermination(Constants.EXECUTOR_TIME_MIN, TimeUnit.MINUTES);
+//      if (!result) {
+//        LOG.warn("HBaseUPTailerExecutor timeout....throws this exception to tailer and quit this.");
+//        eventExecutor.shutdownNow();
+//        throw new RuntimeException("HBaseUPTailerExecutor timeout.");
+//      }
     } catch (Exception e) {
       LOG.error(e.getMessage());
       throw new RuntimeException(e.getMessage());
@@ -67,11 +77,10 @@ public class HBaseUPTailer extends Tail {
             " using " + (System.currentTimeMillis() - currentTime) + "ms.");
   }
 
-  private Map<String, Map<String, Map<String, List<Row>>>> analysisUserUP(List<String> logs) {
+  private Map<String, Map<String, List<Put>>> analysisUserUP(List<String> logs) {
     ObjectMapper objectMapper = new ObjectMapper();
     //Map<Pid,Map<hbaseNode,Map<userProperties,List<Row>>>
-    Map<String, Map<String, Map<String, List<Row>>>> hbaseUPs = new HashMap<String, Map<String, Map<String,
-            List<Row>>>>();
+    Map<String, Map<String, List<Put>>> hbaseUPs = new HashMap<String, Map<String, List<Put>>>();
 
     for (String log : logs) {
       String[] tmps = log.split("\t");
@@ -82,62 +91,55 @@ public class HBaseUPTailer extends Tail {
       }
       String pid = tmps[0];
       long samplingUid = UidMappingUtil.getInstance().decorateWithMD5(Long.valueOf(tmps[1]));
+
+      byte[] uidBytes = Bytes.toBytes(samplingUid);
+      byte[] shortenUid = {uidBytes[3], uidBytes[4], uidBytes[5], uidBytes[6], uidBytes[7]};
+
+
       try {
         Map jsonMap = objectMapper.readValue(tmps[2], Map.class);
+
+        //得到该项目的Map<String,List<Put>>
+        Map<String, List<Put>> pHBaseUps = hbaseUPs.get(pid);
+        if (pHBaseUps == null) {
+          pHBaseUps = new HashMap<String, List<Put>>();
+          hbaseUPs.put(pid, pHBaseUps);
+        }
+        String nodeAddress = UidMappingUtil.getInstance().hash(Long.valueOf(tmps[1]));
+        //所有List<Put>
+        List<Put> puts = pHBaseUps.get(nodeAddress);
+        if (puts == null) {
+          puts = new ArrayList<Put>();
+          pHBaseUps.put(nodeAddress, puts);
+        }
+
+        Put put = new Put(shortenUid);
+
         for (Object entry : jsonMap.entrySet()) {
           if (entry instanceof Map.Entry) {
             String key = ((Map.Entry) entry).getKey().toString();
             String value = ((Map.Entry) entry).getValue().toString();
-            if (ProjectPropertyCacheInHBase.getInstance().getPropertyID(tmps[0], key) > Constants.NULL_MAXPROPERTYID) {
-              String nodeAddress = UidMappingUtil.getInstance().hash(Long.valueOf(tmps[1]));
 
-              //得到该项目的Map<String,Map<String,List<Row>>>
-              Map<String, Map<String, List<Row>>> pHBaseUps = hbaseUPs.get(pid);
-              if (pHBaseUps == null) {
-                pHBaseUps = new HashMap<String, Map<String, List<Row>>>();
-                hbaseUPs.put(pid, pHBaseUps);
-              }
-
-              //得到对应节点的  Map<String, List<Row>>
-              Map<String, List<Row>> nodePuts = pHBaseUps.get(nodeAddress);
-              if (nodePuts == null) {
-                nodePuts = new HashMap<String, List<Row>>();
-                pHBaseUps.put(nodeAddress, nodePuts);
-              }
-
-              //某个属性的List<Row>
-              List<Row> rows = nodePuts.get(key);
-              if (rows == null) {
-                rows = new ArrayList<Row>();
-                nodePuts.put(key, rows);
-              }
-
-              byte[] uidBytes = Bytes.toBytes(samplingUid);
-              byte[] shortenUid = {uidBytes[3], uidBytes[4], uidBytes[5], uidBytes[6], uidBytes[7]};
-
+            int propertyID = ProjectPropertyCacheInHBase.getInstance().getPropertyID(tmps[0], key);
+            if (propertyID > Constants.NULL_MAXPROPERTYID) {
               UpdateFunc upUpdateFunc = ProjectPropertyCacheInHBase.getInstance().getPropertyFunc(tmps[0], key);
               if (upUpdateFunc == UpdateFunc.once) {
-                Put put = new Put(shortenUid);
-                put.add(Bytes.toBytes(Constants.UP_COLUMNFAMILY), Bytes.toBytes(Constants.UP_COLUMNFAMILY),
+                put.add(Bytes.toBytes(Constants.UP_COLUMNFAMILY), Bytes.toBytes(propertyID),
                         Helper.transformOnceTimestamp(), Bytes.toBytes(value));
                 put.setDurability(Durability.SKIP_WAL);
-                rows.add(put);
               } else if (upUpdateFunc == UpdateFunc.cover) {
-                Put put = new Put(shortenUid);
-                put.add(Bytes.toBytes(Constants.UP_COLUMNFAMILY), Bytes.toBytes(Constants.UP_COLUMNFAMILY),
+                put.add(Bytes.toBytes(Constants.UP_COLUMNFAMILY), Bytes.toBytes(propertyID),
                         Helper.getCurrentDayBeginTimestamp(), Bytes.toBytes(value));
                 put.setDurability(Durability.SKIP_WAL);
-                rows.add(put);
               } else if (upUpdateFunc == UpdateFunc.inc) {
-                Increment increment = new Increment(shortenUid);
-                increment.addColumn(Bytes.toBytes(Constants.UP_COLUMNFAMILY), Bytes.toBytes(Constants.UP_COLUMNFAMILY),
-                        Long.parseLong(value));
-                increment.setDurability(Durability.SKIP_WAL);
-                rows.add(increment);
+                put.add(Bytes.toBytes(Constants.UP_COLUMNFAMILY), Bytes.toBytes(propertyID),
+                        Base64Util_Helper.toBytes(Long.parseLong(value)));
+                put.setDurability(Durability.SKIP_WAL);
               }
             }
           }
         }
+        puts.add(put);
       } catch (IOException e) {
         LOG.warn("json parse error." + e.getMessage());
         LOG.warn(log);

@@ -25,37 +25,37 @@ public class HBasePropertiesTask implements Runnable {
 
 
   private String project;
-  private Map<String, Map<String, List<Row>>> hbaseProperties;
+  private Map<String, List<Put>> hbaseProperties;
 
-  public HBasePropertiesTask(String project, Map<String, Map<String, List<Row>>> hbaseProperties) {
+  public HBasePropertiesTask(String project, Map<String, List<Put>> hbaseProperties) {
     this.project = project;
     this.hbaseProperties = hbaseProperties;
   }
 
   @Override
   public void run() {
-    for (Map.Entry<String, Map<String, List<Row>>> entry : hbaseProperties.entrySet()) {
+    for (Map.Entry<String, List<Put>> entry : hbaseProperties.entrySet()) {
       Configuration configuration = HBaseKeychain.getInstance().getConfigs().get(0).configs().get("192.168.1.25");
 //      Configuration configuration =  HBaseKeychain.getInstance().getConfigs().get(0).configs().get(entry.getKey());
-      for (Map.Entry<String, List<Row>> propEntry : entry.getValue().entrySet()) {
-        HTable hTable = null;
-        try {
-          hTable = new HTable(configuration, getTableName(project, propEntry.getKey()));
-          hTable.setAutoFlush(false);
-          hTable.setWriteBufferSize(Constants.WRITE_BUFFER_SIZE);
-          hTable.batch(propEntry.getValue());
-          hTable.flushCommits();
-        } catch (Exception e) {
-          LOG.error("HBasePropertiesTask error.", e);
-        } finally {
-          if (hTable != null)
-            try {
-              hTable.close();
-            } catch (IOException e) {
-              LOG.error(e.getMessage(), e);
-            }
-        }
+
+      HTable hTable = null;
+      try {
+        hTable = new HTable(configuration, "properties_" + project);
+        hTable.setAutoFlush(false);
+        hTable.setWriteBufferSize(Constants.WRITE_BUFFER_SIZE);
+        hTable.put(entry.getValue());
+        hTable.flushCommits();
+      } catch (Exception e) {
+        LOG.error("HBasePropertiesTask error.", e);
+      } finally {
+        if (hTable != null)
+          try {
+            hTable.close();
+          } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
+          }
       }
+
     }
     try {
       ProjectPropertyCacheInHBase.getInstance().resetUserProps(project);
@@ -64,9 +64,5 @@ public class HBasePropertiesTask implements Runnable {
     }
   }
 
-  public static String getTableName(String project, String propertyName) {
-    return "property_" + project + "_" + ProjectPropertyCacheInHBase.getInstance().getPropertyID(project,
-            propertyName)+"_"+ProjectPropertyCacheInHBase.getInstance().getPropertyFunc(project,
-            propertyName).name().substring(0,1);
-  }
+
 }
