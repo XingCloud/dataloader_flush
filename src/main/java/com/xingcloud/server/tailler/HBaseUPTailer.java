@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * User: IvyTang
@@ -49,26 +50,29 @@ public class HBaseUPTailer extends Tail {
       FlushExecutor eventExecutor = new FlushExecutor();
       Map<String, Map<String, List<Put>>> userProperties = analysisUserUP(logs);
       for (Map.Entry<String, Map<String, List<Put>>> entry : userProperties.entrySet()) {
-        System.out.println(entry.getValue());
+        System.out.println(entry.getKey());
         for (Map.Entry<String, List<Put>> pEntry : entry.getValue().entrySet()) {
           System.out.println("\t" + pEntry.getKey());
           for (Put put : pEntry.getValue()) {
-            System.out.println("\t\t" + Bytes.toString(put.getRow()) + "\t" + put.toJSON());
+
+            byte[] uids  = new byte[]{put.getRow()[1],put.getRow()[2],put.getRow()[3],
+                    put.getRow()[4]};
+            System.out.println("\t\t" + Bytes.toInt(uids) + "\t" + put.toJSON());
 
           }
         }
       }
-//      for (Map.Entry<String, Map<String, List<Put>>> entry : userProperties.entrySet()) {
-//        HBasePropertiesTask hBasePropertiesTask = new HBasePropertiesTask(entry.getKey(), entry.getValue());
-//        eventExecutor.execute(hBasePropertiesTask);
-//      }
-//      eventExecutor.shutdown();
-//      boolean result = eventExecutor.awaitTermination(Constants.EXECUTOR_TIME_MIN, TimeUnit.MINUTES);
-//      if (!result) {
-//        LOG.warn("HBaseUPTailerExecutor timeout....throws this exception to tailer and quit this.");
-//        eventExecutor.shutdownNow();
-//        throw new RuntimeException("HBaseUPTailerExecutor timeout.");
-//      }
+      for (Map.Entry<String, Map<String, List<Put>>> entry : userProperties.entrySet()) {
+        HBasePropertiesTask hBasePropertiesTask = new HBasePropertiesTask(entry.getKey(), entry.getValue());
+        eventExecutor.execute(hBasePropertiesTask);
+      }
+      eventExecutor.shutdown();
+      boolean result = eventExecutor.awaitTermination(Constants.EXECUTOR_TIME_MIN, TimeUnit.MINUTES);
+      if (!result) {
+        LOG.warn("HBaseUPTailerExecutor timeout....throws this exception to tailer and quit this.");
+        eventExecutor.shutdownNow();
+        throw new RuntimeException("HBaseUPTailerExecutor timeout.");
+      }
     } catch (Exception e) {
       LOG.error(e.getMessage());
       throw new RuntimeException(e.getMessage());
@@ -133,13 +137,17 @@ public class HBaseUPTailer extends Tail {
                 put.setDurability(Durability.SKIP_WAL);
               } else if (upUpdateFunc == UpdateFunc.inc) {
                 put.add(Bytes.toBytes(Constants.UP_COLUMNFAMILY), Bytes.toBytes(propertyID),
-                        Base64Util_Helper.toBytes(Long.parseLong(value)));
+                        System.currentTimeMillis(),Base64Util_Helper.toBytes(Long.parseLong(value)));
                 put.setDurability(Durability.SKIP_WAL);
               }
+
             }
           }
         }
-        puts.add(put);
+        if(!put.isEmpty())
+          puts.add(put);
+
+
       } catch (IOException e) {
         LOG.warn("json parse error." + e.getMessage());
         LOG.warn(log);

@@ -128,7 +128,7 @@
         <dependency>
             <groupId>com.xingcloud.xa</groupId>
             <artifactId>userprops_meta_util</artifactId>
-            <version>0.1.1</version>
+            <version>0.1.2</version>
         </dependency>
     </dependencies>
 

@@ -34,8 +34,11 @@ public class HBasePropertiesTask implements Runnable {
 
   @Override
   public void run() {
+    System.out.println(project);
     for (Map.Entry<String, List<Put>> entry : hbaseProperties.entrySet()) {
+      System.out.println(entry.getKey() + ":\t" + entry.getValue().size());
       Configuration configuration = HBaseKeychain.getInstance().getConfigs().get(0).configs().get("192.168.1.25");
+
 //      Configuration configuration =  HBaseKeychain.getInstance().getConfigs().get(0).configs().get(entry.getKey());
 
       HTable hTable = null;
