@@ -25,47 +25,38 @@ public class HBasePropertiesTask implements Runnable {
 
 
   private String project;
-  private Map<String, List<Put>> hbaseProperties;
+  private String hbaseNodeAddress;
+  private List<Put> userProperties;
 
-  public HBasePropertiesTask(String project, Map<String, List<Put>> hbaseProperties) {
+  public HBasePropertiesTask(String project, String hbaseNodeAddress, List<Put> userProperties) {
     this.project = project;
-    this.hbaseProperties = hbaseProperties;
+    this.hbaseNodeAddress = hbaseNodeAddress;
+    this.userProperties = userProperties;
   }
 
   @Override
   public void run() {
-    System.out.println(project);
-    for (Map.Entry<String, List<Put>> entry : hbaseProperties.entrySet()) {
-      System.out.println(entry.getKey() + ":\t" + entry.getValue().size());
-      Configuration configuration = HBaseKeychain.getInstance().getConfigs().get(0).configs().get("192.168.1.25");
+    System.out.println(project + "\t" + hbaseNodeAddress + "\t" + userProperties.size());
+    Configuration configuration = HBaseKeychain.getInstance().getConfigs().get(0).configs().get("192.168.1.25");
 
-//      Configuration configuration =  HBaseKeychain.getInstance().getConfigs().get(0).configs().get(entry.getKey());
+//      Configuration configuration =  HBaseKeychain.getInstance().getConfigs().get(0).configs().get(hbaseNodeAddress);
 
-      HTable hTable = null;
-      try {
-        hTable = new HTable(configuration, "properties_" + project);
-        hTable.setAutoFlush(false);
-        hTable.setWriteBufferSize(Constants.WRITE_BUFFER_SIZE);
-        hTable.put(entry.getValue());
-        hTable.flushCommits();
-      } catch (Exception e) {
-        LOG.error("HBasePropertiesTask error.", e);
-      } finally {
-        if (hTable != null)
-          try {
-            hTable.close();
-          } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
-          }
-      }
-
-    }
+    HTable hTable = null;
     try {
-      ProjectPropertyCacheInHBase.getInstance().resetUserProps(project);
-    } catch (IOException e) {
-      LOG.error(e.getMessage(), e);
+      hTable = new HTable(configuration, "properties_" + project);
+      hTable.setAutoFlush(false);
+      hTable.setWriteBufferSize(Constants.WRITE_BUFFER_SIZE);
+      hTable.put(userProperties);
+      hTable.flushCommits();
+    } catch (Exception e) {
+      LOG.error("HBasePropertiesTask error.", e);
+    } finally {
+      if (hTable != null)
+        try {
+          hTable.close();
+        } catch (IOException e) {
+          LOG.error(e.getMessage(), e);
+        }
     }
   }
-
-
 }

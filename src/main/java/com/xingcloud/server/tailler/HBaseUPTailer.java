@@ -55,16 +55,36 @@ public class HBaseUPTailer extends Tail {
           System.out.println("\t" + pEntry.getKey());
           for (Put put : pEntry.getValue()) {
 
-            byte[] uids  = new byte[]{put.getRow()[1],put.getRow()[2],put.getRow()[3],
+            byte[] uids = new byte[]{put.getRow()[1], put.getRow()[2], put.getRow()[3],
                     put.getRow()[4]};
             System.out.println("\t\t" + Bytes.toInt(uids) + "\t" + put.toJSON());
 
           }
         }
       }
+      //每个 HBasePropertiesTask处理的put数<=  Constants.HBASEUP_ONE_THREAD_PUT
       for (Map.Entry<String, Map<String, List<Put>>> entry : userProperties.entrySet()) {
-        HBasePropertiesTask hBasePropertiesTask = new HBasePropertiesTask(entry.getKey(), entry.getValue());
-        eventExecutor.execute(hBasePropertiesTask);
+        for (Map.Entry<String, List<Put>> pEntry : entry.getValue().entrySet()) {
+          if (pEntry.getValue().size() <= Constants.HBASEUP_ONE_THREAD_PUT) {
+            HBasePropertiesTask hBasePropertiesTask = new HBasePropertiesTask(entry.getKey(), pEntry.getKey(),
+                    pEntry.getValue());
+            eventExecutor.execute(hBasePropertiesTask);
+          } else {
+            int sub_task_num = pEntry.getValue().size() / Constants.HBASEUP_ONE_THREAD_PUT + (pEntry.getValue().size()
+                    % Constants.HBASEUP_ONE_THREAD_PUT == 0 ? 0 : 1);
+            for (int i = 0; i < sub_task_num; i++) {
+              HBasePropertiesTask hBasePropertiesTask = null;
+              if (i == sub_task_num - 1) {
+                hBasePropertiesTask = new HBasePropertiesTask(entry.getKey(), pEntry.getKey(),
+                        pEntry.getValue().subList(i * Constants.HBASEUP_ONE_THREAD_PUT, pEntry.getValue().size()));
+              } else {
+                hBasePropertiesTask = new HBasePropertiesTask(entry.getKey(), pEntry.getKey(),
+                        pEntry.getValue().subList(i * Constants.HBASEUP_ONE_THREAD_PUT, (i + 1) * Constants.HBASEUP_ONE_THREAD_PUT));
+              }
+              eventExecutor.execute(hBasePropertiesTask);
+            }
+          }
+        }
       }
       eventExecutor.shutdown();
       boolean result = eventExecutor.awaitTermination(Constants.EXECUTOR_TIME_MIN, TimeUnit.MINUTES);
@@ -83,7 +103,7 @@ public class HBaseUPTailer extends Tail {
 
   private Map<String, Map<String, List<Put>>> analysisUserUP(List<String> logs) {
     ObjectMapper objectMapper = new ObjectMapper();
-    //Map<Pid,Map<hbaseNode,Map<userProperties,List<Row>>>
+
     Map<String, Map<String, List<Put>>> hbaseUPs = new HashMap<String, Map<String, List<Put>>>();
 
     for (String log : logs) {
@@ -91,15 +111,12 @@ public class HBaseUPTailer extends Tail {
       if (tmps.length != Constants.USER_ITEM_NUM) {
         LOG.warn(log);
         continue;
-
       }
       String pid = tmps[0];
       long samplingUid = UidMappingUtil.getInstance().decorateWithMD5(Long.valueOf(tmps[1]));
 
       byte[] uidBytes = Bytes.toBytes(samplingUid);
       byte[] shortenUid = {uidBytes[3], uidBytes[4], uidBytes[5], uidBytes[6], uidBytes[7]};
-
-
       try {
         Map jsonMap = objectMapper.readValue(tmps[2], Map.class);
 
@@ -137,15 +154,17 @@ public class HBaseUPTailer extends Tail {
                 put.setDurability(Durability.SKIP_WAL);
               } else if (upUpdateFunc == UpdateFunc.inc) {
                 put.add(Bytes.toBytes(Constants.UP_COLUMNFAMILY), Bytes.toBytes(propertyID),
-                        System.currentTimeMillis(),Base64Util_Helper.toBytes(Long.parseLong(value)));
+                        System.currentTimeMillis(), Base64Util_Helper.toBytes(Long.parseLong(value)));
                 put.setDurability(Durability.SKIP_WAL);
               }
 
             }
           }
         }
-        if(!put.isEmpty())
+        if (!put.isEmpty()) {
+          System.out.println(put.toJSON());
           puts.add(put);
+        }
 
 
       } catch (IOException e) {

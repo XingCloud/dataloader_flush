@@ -12,7 +12,7 @@ import java.util.List;
  * Time: 上午9:53
  */
 public class User_BulkLoad {
-  private static Log LOG = LogFactory.getLog(User.class);
+  private static Log LOG = LogFactory.getLog(User_BulkLoad.class);
 
   private String project;
 
