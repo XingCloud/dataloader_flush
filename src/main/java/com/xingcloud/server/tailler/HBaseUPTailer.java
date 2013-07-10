@@ -147,22 +147,23 @@ public class HBaseUPTailer extends Tail {
               if (upUpdateFunc == UpdateFunc.once) {
                 put.add(Bytes.toBytes(Constants.UP_COLUMNFAMILY), Bytes.toBytes(propertyID),
                         Helper.transformOnceTimestamp(), Bytes.toBytes(value));
-                put.setDurability(Durability.SKIP_WAL);
+
               } else if (upUpdateFunc == UpdateFunc.cover) {
                 put.add(Bytes.toBytes(Constants.UP_COLUMNFAMILY), Bytes.toBytes(propertyID),
                         Helper.getCurrentDayBeginTimestamp(), Bytes.toBytes(value));
-                put.setDurability(Durability.SKIP_WAL);
+
               } else if (upUpdateFunc == UpdateFunc.inc) {
                 put.add(Bytes.toBytes(Constants.UP_COLUMNFAMILY), Bytes.toBytes(propertyID),
                         System.currentTimeMillis(), Base64Util_Helper.toBytes(Long.parseLong(value)));
-                put.setDurability(Durability.SKIP_WAL);
+
               }
 
             }
           }
         }
         if (!put.isEmpty()) {
-          System.out.println(put.toJSON());
+          put.setDurability(Durability.SKIP_WAL);
+//          System.out.println(put.toJSON());
           puts.add(put);
         }
 
