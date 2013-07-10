@@ -44,24 +44,24 @@ public class HBaseUPTailer extends Tail {
 
   @Override
   public void send(List<String> logs, long day) {
-    LOG.info("======HBaseUPTailer=======" + day + " events log ..." + logs.size());
+    LOG.info("======HBaseUPTailer=======" + day + " users log ..." + logs.size());
     long currentTime = System.currentTimeMillis();
     try {
       FlushExecutor eventExecutor = new FlushExecutor();
       Map<String, Map<String, List<Put>>> userProperties = analysisUserUP(logs);
-      for (Map.Entry<String, Map<String, List<Put>>> entry : userProperties.entrySet()) {
-        System.out.println(entry.getKey());
-        for (Map.Entry<String, List<Put>> pEntry : entry.getValue().entrySet()) {
-          System.out.println("\t" + pEntry.getKey());
-          for (Put put : pEntry.getValue()) {
-
-            byte[] uids = new byte[]{put.getRow()[1], put.getRow()[2], put.getRow()[3],
-                    put.getRow()[4]};
-            System.out.println("\t\t" + Bytes.toInt(uids) + "\t" + put.toJSON());
-
-          }
-        }
-      }
+//      for (Map.Entry<String, Map<String, List<Put>>> entry : userProperties.entrySet()) {
+//        System.out.println(entry.getKey());
+//        for (Map.Entry<String, List<Put>> pEntry : entry.getValue().entrySet()) {
+//          System.out.println("\t" + pEntry.getKey());
+//          for (Put put : pEntry.getValue()) {
+//
+//            byte[] uids = new byte[]{put.getRow()[1], put.getRow()[2], put.getRow()[3],
+//                    put.getRow()[4]};
+//            System.out.println("\t\t" + Bytes.toInt(uids) + "\t" + put.toJSON());
+//
+//          }
+//        }
+//      }
       //每个 HBasePropertiesTask处理的put数<=  Constants.HBASEUP_ONE_THREAD_PUT
       for (Map.Entry<String, Map<String, List<Put>>> entry : userProperties.entrySet()) {
         for (Map.Entry<String, List<Put>> pEntry : entry.getValue().entrySet()) {
@@ -97,7 +97,7 @@ public class HBaseUPTailer extends Tail {
       LOG.error(e.getMessage());
       throw new RuntimeException(e.getMessage());
     }
-    LOG.info("======HBaseUPTailer=======" + day + " events log send completed." + logs.size() +
+    LOG.info("======HBaseUPTailer=======" + day + " users log send completed." + logs.size() +
             " using " + (System.currentTimeMillis() - currentTime) + "ms.");
   }
 
