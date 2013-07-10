@@ -36,7 +36,7 @@ public class HBasePropertiesTask implements Runnable {
 
   @Override
   public void run() {
-//    System.out.println(project + "\t" + hbaseNodeAddress + "\t" + userProperties.size());
+    LOG.info(project + "\t" + hbaseNodeAddress + "\t" + userProperties.size());
     Configuration configuration = HBaseKeychain.getInstance().getConfigs().get(0).configs().get("192.168.1.25");
 
 //      Configuration configuration =  HBaseKeychain.getInstance().getConfigs().get(0).configs().get(hbaseNodeAddress);
