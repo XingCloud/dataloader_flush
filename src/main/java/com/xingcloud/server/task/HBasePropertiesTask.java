@@ -36,27 +36,33 @@ public class HBasePropertiesTask implements Runnable {
 
   @Override
   public void run() {
-    LOG.info(project + "\t" + hbaseNodeAddress + "\t" + userProperties.size());
     Configuration configuration = HBaseKeychain.getInstance().getConfigs().get(0).configs().get("192.168.1.25");
-
 //      Configuration configuration =  HBaseKeychain.getInstance().getConfigs().get(0).configs().get(hbaseNodeAddress);
-
-    HTable hTable = null;
-    try {
-      hTable = new HTable(configuration, "properties_" + project);
-      hTable.setAutoFlush(false);
-      hTable.setWriteBufferSize(Constants.WRITE_BUFFER_SIZE);
-      hTable.put(userProperties);
-      hTable.flushCommits();
-    } catch (Exception e) {
-      LOG.error("HBasePropertiesTask error.", e);
-    } finally {
-      if (hTable != null)
+    while (true) {
+      LOG.info(project + "\t" + hbaseNodeAddress + "\t" + userProperties.size());
+      HTable hTable = null;
+      try {
+        hTable = new HTable(configuration, "properties_" + project);
+        hTable.setAutoFlush(false);
+        hTable.setWriteBufferSize(Constants.WRITE_BUFFER_SIZE);
+        hTable.put(userProperties);
+        hTable.flushCommits();
+        break;
+      } catch (IOException e) {
+        LOG.error("HBasePropertiesTask error.", e);
         try {
-          hTable.close();
-        } catch (IOException e) {
-          LOG.error(e.getMessage(), e);
+          Thread.sleep(5 * 1000);
+        } catch (InterruptedException e1) {
+          break;
         }
+      } finally {
+        if (hTable != null)
+          try {
+            hTable.close();
+          } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
+          }
+      }
     }
   }
 }

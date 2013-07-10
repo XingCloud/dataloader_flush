@@ -157,17 +157,13 @@ public class HBaseUPTailer extends Tail {
                         System.currentTimeMillis(), Base64Util_Helper.toBytes(Long.parseLong(value)));
 
               }
-
             }
           }
         }
         if (!put.isEmpty()) {
           put.setDurability(Durability.SKIP_WAL);
-//          System.out.println(put.toJSON());
           puts.add(put);
         }
-
-
       } catch (IOException e) {
         LOG.warn("json parse error." + e.getMessage());
         LOG.warn(log);
