@@ -24,7 +24,7 @@ public class Helper {
 
   private static final int ONE_DAY_SECONDS = 24 * 3600;
 
-  public static final long FUTURE_TS_REFERENCE = 4102416000000l;//2100的时间戳
+  public static final long FUTURE_TS_REFERENCE = Long.MAX_VALUE;//2100的时间戳
 
   public static String getDate(long timestamp) {
     SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
@@ -39,12 +39,11 @@ public class Helper {
   }
 
   /**
-   * 用2100年时间戳 - 本来的时间戳，作为once的时间戳，让第一次出现的ts变为最大的一个，实现once的目的
+   * 用Long.MAX_VALUE - 本来的时间戳，作为once的时间戳，让第一次出现的ts变为最大的一个，实现once的目的
    *
    * @return
    */
   public static long transformOnceTimestamp() {
-
     return FUTURE_TS_REFERENCE - System.currentTimeMillis();
   }
 
