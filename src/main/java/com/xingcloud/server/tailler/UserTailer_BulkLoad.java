@@ -49,8 +49,8 @@ public class UserTailer_BulkLoad extends Tail {
       //random pids sort, let 4 dataloader load data in different pids sort .
       String[] randomPids = usersMap.keySet().toArray(new String[usersMap.keySet().size()]);
       Helper.shuffle(randomPids);
-      for(String pid:randomPids){
-        USerTask_BulkLoad uSerTask_bulkLoad = new USerTask_BulkLoad(pid,usersMap.get(pid));
+      for (String pid : randomPids) {
+        USerTask_BulkLoad uSerTask_bulkLoad = new USerTask_BulkLoad(pid, usersMap.get(pid));
         userExecutor.execute(uSerTask_bulkLoad);
       }
 
@@ -62,8 +62,7 @@ public class UserTailer_BulkLoad extends Tail {
         throw new RuntimeException("userExecutor timeout.");
       }
     } catch (Exception e) {
-      LOG.error(e.getMessage());
-      throw new RuntimeException(e.getMessage());
+      throw new RuntimeException(e.getMessage(),e);
     }
 
     LOG.info("======UserTailer_BulkLoad======= " + l + " users log send completed." + strings.size()

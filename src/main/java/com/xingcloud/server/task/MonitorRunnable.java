@@ -17,7 +17,9 @@ public class MonitorRunnable implements Runnable {
 
   private static final Log LOG = LogFactory.getLog(MonitorRunnable.class);
 
-  private static final int CHECK_INTERVAL_MS = 20 * 60 * 1000;
+  private static final int FIRST_SLEEP_MS = 20 * 60 * 1000;
+
+  private static final int CHECK_INTERVAL_MS = 10 * 60 * 1000;
 
   private long lastEventSendProcess = 0l;
 
@@ -28,7 +30,7 @@ public class MonitorRunnable implements Runnable {
   @Override
   public void run() {
     try {
-      Thread.sleep(20 * 60 * 1000);
+      Thread.sleep(FIRST_SLEEP_MS);
     } catch (InterruptedException e) {
       LOG.error(e.getMessage());
     }
