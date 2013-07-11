@@ -300,8 +300,12 @@ public class USerTask_BulkLoad implements Runnable {
     while ((cmdOutput = stdInput.readLine()) != null)
       LOG.warn(cmdOutput);
     while ((cmdOutput = stdError.readLine()) != null) {
-      cmdOutput = cmdOutput.replaceAll("ERROR", "e");
-      LOG.warn(cmdOutput);
+      if(cmdOutput.contains("Can't connect to MySQL server on")){
+        LOG.error(cmdOutput);
+      } else{
+        cmdOutput = cmdOutput.replaceAll("ERROR", "e");
+        LOG.warn(cmdOutput);
+      }
     }
     int result = process.waitFor();
     if (result != 0)
