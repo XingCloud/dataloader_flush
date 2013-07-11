@@ -62,7 +62,7 @@ public class UserTailer_BulkLoad extends Tail {
         throw new RuntimeException("userExecutor timeout.");
       }
     } catch (Exception e) {
-      LOG.error(e.getMessage());
+//      LOG.error(e.getMessage());
       throw new RuntimeException(e.getMessage());
     }
 
@@ -75,7 +75,7 @@ public class UserTailer_BulkLoad extends Tail {
     ObjectMapper objectMapper = new ObjectMapper();
     for (String log : logs) {
       String[] tmps = log.split("\t");
-      if (tmps.length != Constants.USER_ITEM_NUM) {
+      if (!(tmps.length == Constants.USER_ITEM_NUM || tmps.length == Constants.USER_ITEM_NUM+1)) {
         LOG.warn(log);
         continue;
       }

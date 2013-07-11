@@ -106,14 +106,16 @@ public class HBaseUPTailer extends Tail {
 
     Map<String, Map<String, List<Put>>> hbaseUPs = new HashMap<String, Map<String, List<Put>>>();
 
+
     for (String log : logs) {
       String[] tmps = log.split("\t");
-      if (tmps.length != Constants.USER_ITEM_NUM) {
+      if (tmps.length != Constants.USER_ITEM_NUM+1) {
         LOG.warn(log);
         continue;
       }
       String pid = tmps[0];
       long samplingUid = UidMappingUtil.getInstance().decorateWithMD5(Long.valueOf(tmps[1]));
+      long timeStamp = Long.parseLong(tmps[3]);
 
       byte[] uidBytes = Bytes.toBytes(samplingUid);
       byte[] shortenUid = {uidBytes[3], uidBytes[4], uidBytes[5], uidBytes[6], uidBytes[7]};
@@ -140,22 +142,18 @@ public class HBaseUPTailer extends Tail {
           if (entry instanceof Map.Entry) {
             String key = ((Map.Entry) entry).getKey().toString();
             String value = ((Map.Entry) entry).getValue().toString();
-
             int propertyID = ProjectPropertyCacheInHBase.getInstance().getPropertyID(tmps[0], key);
             if (propertyID > Constants.NULL_MAXPROPERTYID) {
               UpdateFunc upUpdateFunc = ProjectPropertyCacheInHBase.getInstance().getPropertyFunc(tmps[0], key);
               if (upUpdateFunc == UpdateFunc.once) {
                 put.add(Bytes.toBytes(Constants.UP_COLUMNFAMILY), Bytes.toBytes(propertyID),
-                        Helper.transformOnceTimestamp(), Bytes.toBytes(value));
-
+                        Helper.transformOnceTimestamp(timeStamp), Bytes.toBytes(value));
               } else if (upUpdateFunc == UpdateFunc.cover) {
                 put.add(Bytes.toBytes(Constants.UP_COLUMNFAMILY), Bytes.toBytes(propertyID),
-                        Helper.getCurrentDayBeginTimestamp(), Bytes.toBytes(value));
-
+                        Helper.getGivenTSDayBeginTimestamp(timeStamp), Bytes.toBytes(value));
               } else if (upUpdateFunc == UpdateFunc.inc) {
                 put.add(Bytes.toBytes(Constants.UP_COLUMNFAMILY), Bytes.toBytes(propertyID),
-                        System.currentTimeMillis(), Base64Util_Helper.toBytes(Long.parseLong(value)));
-
+                        timeStamp, Base64Util_Helper.toBytes(Long.parseLong(value)));
               }
             }
           }

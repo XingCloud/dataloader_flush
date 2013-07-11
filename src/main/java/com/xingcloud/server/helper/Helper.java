@@ -33,9 +33,9 @@ public class Helper {
     return df.format(date);
   }
 
-  public static long getCurrentDayBeginTimestamp() {
-    long currentTsSecond = System.currentTimeMillis() / 1000;
-    return (currentTsSecond - currentTsSecond % ONE_DAY_SECONDS) * 1000;
+  public static long getGivenTSDayBeginTimestamp(long timeStamp) {
+    long givenTsSecond = timeStamp / 1000;
+    return (givenTsSecond - givenTsSecond % ONE_DAY_SECONDS) * 1000;
   }
 
   /**
@@ -43,8 +43,8 @@ public class Helper {
    *
    * @return
    */
-  public static long transformOnceTimestamp() {
-    return FUTURE_TS_REFERENCE - System.currentTimeMillis();
+  public static long transformOnceTimestamp(long timeStamp) {
+    return FUTURE_TS_REFERENCE - timeStamp;
   }
 
 
@@ -245,10 +245,10 @@ public class Helper {
 
 
   public static void main(String[] args) throws InterruptedException {
-    long t1 = getCurrentDayBeginTimestamp();
+    long t1 = getGivenTSDayBeginTimestamp(System.currentTimeMillis());
     System.out.println(t1);
     Thread.sleep(3 * 1000);
-    long t2 = getCurrentDayBeginTimestamp();
+    long t2 = getGivenTSDayBeginTimestamp(System.currentTimeMillis());
     System.out.println(t2);
 
     System.out.println(getDate(t1));
