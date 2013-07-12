@@ -62,7 +62,7 @@ public class HBaseUPTailer extends Tail {
 //          }
 //        }
 //      }
-      //每个 HBasePropertiesTask处理的put数<=  Constants.HBASEUP_ONE_THREAD_PUT
+      //每个 HBasePropertiesTask处理的put数 <=  Constants.HBASEUP_ONE_THREAD_PUT
       for (Map.Entry<String, Map<String, List<Put>>> entry : userProperties.entrySet()) {
         for (Map.Entry<String, List<Put>> pEntry : entry.getValue().entrySet()) {
           if (pEntry.getValue().size() <= Constants.HBASEUP_ONE_THREAD_PUT) {
@@ -106,8 +106,8 @@ public class HBaseUPTailer extends Tail {
 
     Map<String, Map<String, List<Put>>> hbaseUPs = new HashMap<String, Map<String, List<Put>>>();
 
-
     for (String log : logs) {
+
       String[] tmps = log.split("\t");
       if (tmps.length != Constants.USER_ITEM_NUM+1) {
         LOG.warn(log);

@@ -26,13 +26,13 @@ public class DataLoaderFlushFixWather {
 
   public static void main(String[] args) throws IOException, ConfException {
     Log4jProperties.init();
-//    Thread eventThread = new Thread(new EventTailerRunnable(new EventTailer(Constants.EVENT_TAIL_CONF_PATH)));
+    Thread eventThread = new Thread(new EventTailerRunnable(new EventTailer(Constants.EVENT_TAIL_CONF_PATH)));
 //    Thread userBulkLoadThread = new Thread(new UserTailerRunnable_BulkLoad(new UserTailer_BulkLoad(Constants.USER_TAIL_CONF_PATH)));
 //    Thread monitorThread = new Thread(new MonitorRunnable());
     Thread hBaseUPThread = new Thread(new HBaseUPTailerRunnable(new HBaseUPTailer(Constants
             .HBASEUP_TAIL_CONF_PATH)));
-//    eventThread.start();
-//    LOG.info("event thread starting...");
+    eventThread.start();
+    LOG.info("event thread starting...");
 //    userBulkLoadThread.start();
 //    LOG.info("user bulkload thread starting...");
 //    monitorThread.start();
