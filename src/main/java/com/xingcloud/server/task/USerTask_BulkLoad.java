@@ -1,6 +1,6 @@
 package com.xingcloud.server.task;
 
-import com.xingcloud.mysql.MySql_fixseqid;
+import com.xingcloud.mysql.MySql_16seqid;
 import com.xingcloud.mysql.UpdateFunc;
 import com.xingcloud.server.helper.Constants;
 import com.xingcloud.server.helper.Helper;
@@ -269,14 +269,14 @@ public class USerTask_BulkLoad implements Runnable {
   }
 
   private void cold2Hot(User_BulkLoad user) throws SQLException {
-    MySql_fixseqid.getInstance().cold2hot(project, user.getSamplingUid());
+    MySql_16seqid.getInstance().cold2hot(project, user.getSamplingUid());
   }
 
   private Connection getUidConn(String dbName, long seqUid) throws SQLException {
     String nodeAddress = UidMappingUtil.getInstance().hash(seqUid);
     Connection conn = this.cons.get(nodeAddress);
     if (conn == null) {
-      conn = MySql_fixseqid.getInstance().getConnByNode(dbName, nodeAddress);
+      conn = MySql_16seqid.getInstance().getConnByNode(dbName, nodeAddress);
       this.cons.put(nodeAddress, conn);
     }
     return conn;
@@ -286,7 +286,7 @@ public class USerTask_BulkLoad implements Runnable {
   private Connection getNodeConn(String dbName, String nodeAddress) throws SQLException {
     Connection conn = this.cons.get(nodeAddress);
     if (conn == null) {
-      conn = MySql_fixseqid.getInstance().getConnByNode(dbName, nodeAddress);
+      conn = MySql_16seqid.getInstance().getConnByNode(dbName, nodeAddress);
       this.cons.put(nodeAddress, conn);
     }
     return conn;
@@ -326,8 +326,8 @@ public class USerTask_BulkLoad implements Runnable {
     @Override
     public void run() {
       StringBuilder stringBuilder = new StringBuilder();
-      stringBuilder.append("use fix_");
-      stringBuilder.append(project);
+      stringBuilder.append("use ");
+      stringBuilder.append(Helper.getMySQLTableName(project));
       stringBuilder.append(";set autocommit = 0;");
       boolean nodeHasData = false;
 

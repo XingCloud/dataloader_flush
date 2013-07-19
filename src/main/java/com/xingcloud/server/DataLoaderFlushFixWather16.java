@@ -20,21 +20,21 @@ import java.io.IOException;
  * Date: 12-11-28
  * Time: 下午1:14
  */
-public class DataLoaderFlushFixWather {
+public class DataLoaderFlushFixWather16 {
 
-  private static final Log LOG = LogFactory.getLog(DataLoaderFlushFixWather.class);
+  private static final Log LOG = LogFactory.getLog(DataLoaderFlushFixWather16.class);
 
   public static void main(String[] args) throws IOException, ConfException {
     Log4jProperties.init();
-    Thread eventThread = new Thread(new EventTailerRunnable(new EventTailer(Constants.EVENT_TAIL_CONF_PATH)));
+//    Thread eventThread = new Thread(new EventTailerRunnable(new EventTailer(Constants.EVENT_TAIL_CONF_PATH)));
     Thread userBulkLoadThread = new Thread(new UserTailerRunnable_BulkLoad(new UserTailer_BulkLoad(Constants.USER_TAIL_CONF_PATH)));
-    Thread monitorThread = new Thread(new MonitorRunnable());
-    eventThread.start();
-    LOG.info("event thread starting...");
+//    Thread monitorThread = new Thread(new MonitorRunnable());
+//    eventThread.start();
+//    LOG.info("event thread starting...");
     userBulkLoadThread.start();
     LOG.info("user bulkload thread starting...");
-    monitorThread.start();
-    LOG.info("monitor thread starting...");
+//    monitorThread.start();
+//    LOG.info("monitor thread starting...");
   }
 }
 

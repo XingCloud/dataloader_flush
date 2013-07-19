@@ -183,6 +183,10 @@ public class Helper {
     return project + "_deu";
   }
 
+  public static String getMySQLTableName(String project) {
+    return "16_" + project;
+  }
+
   public static String getLocalIp() {
     String localIp = null;
     Enumeration<NetworkInterface> netInterfaces = null;

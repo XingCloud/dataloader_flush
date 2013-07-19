@@ -1,7 +1,7 @@
 package com.xingcloud.server.task;
 
-import com.xingcloud.mysql.MySql_fixseqid;
-import com.xingcloud.mysql.MySql_seqid;
+
+import com.xingcloud.mysql.MySql_16seqid;
 import com.xingcloud.xa.uidmapping.UidMappingUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -167,14 +167,14 @@ public class UserTask implements Runnable {
 
 
   private void cold2Hot(User user) throws SQLException {
-    MySql_fixseqid.getInstance().cold2hot(project, user.getSamplingUid());
+    MySql_16seqid.getInstance().cold2hot(project, user.getSamplingUid());
   }
 
   private Connection getUidConn(String dbName, long seqUid) throws SQLException {
     String nodeAddress = UidMappingUtil.getInstance().hash(seqUid);
     Connection conn = this.cons.get(nodeAddress);
     if (conn == null) {
-      conn = MySql_fixseqid.getInstance().getConnByNode(dbName, nodeAddress);
+      conn = MySql_16seqid.getInstance().getConnByNode(dbName, nodeAddress);
       this.cons.put(nodeAddress, conn);
     }
     return conn;

@@ -8,11 +8,11 @@ workDir=/home/hadoop/xa
 logDir=${workDir}/log
 runJar=${workDir}/runJar
 
-jar="dataloader_flush_fix_test.jar";
+jar="dataloader_flush_fix16_test.jar";
 
 
 #***************
-main="com.xingcloud.server.DataLoaderFlushFixWather"
+main="com.xingcloud.server.DataLoaderFlushFixWather16"
 
 
 hostliststr="192.168.1.142,192.168.1.143,192.168.1.144,192.168.1.145"
