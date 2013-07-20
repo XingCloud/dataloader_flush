@@ -17,7 +17,7 @@ verboses="-XX:+HeapDumpOnOutOfMemoryError"
 memarg="-server -Xms12g -Xmx12g -Xss256K"
 gcarg="-XX:SurvivorRatio=16 -XX:+UseConcMarkSweepGC -XX:NewSize=512M -XX:MaxNewSize=512M -XX:+UseAdaptiveSizePolicy -XX:-ExplicitGCInvokesConcurrent -XX:+UseCMSCompactAtFullCollection -XX:CMSFullGCsBeforeCompaction=2"
 
-main="com.xingcloud.server.DataLoaderFlushFixWather16"
+main="com.xingcloud.server.DataLoaderFlush16Wather"
 
 hostliststr="192.168.1.142,192.168.1.143,192.168.1.144,192.168.1.145"
 #hostliststr="127.0.0.1,localhost"

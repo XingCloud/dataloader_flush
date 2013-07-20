@@ -11,7 +11,7 @@ runJar=${workDir}/runJar
 
 #***************
 #run the dataloader 
-main="com.xingcloud.server.DataLoaderFlushFixWather16"
+main="com.xingcloud.server.DataLoaderFlush16Wather"
 
 
 hostliststr="192.168.1.142,192.168.1.143,192.168.1.144,192.168.1.145"
