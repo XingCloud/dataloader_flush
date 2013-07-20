@@ -89,7 +89,7 @@ public class UserTailer_BulkLoad extends Tail {
             propValues.add(((Map.Entry) entry).getValue().toString());
           }
         }
-      } catch (IOException e) {
+      } catch (Exception e) {
         LOG.warn("json parse error." + e.getMessage());
         LOG.warn(log);
         continue;
