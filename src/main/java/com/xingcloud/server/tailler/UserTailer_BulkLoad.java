@@ -62,7 +62,7 @@ public class UserTailer_BulkLoad extends Tail {
         throw new RuntimeException("userExecutor timeout.");
       }
     } catch (Exception e) {
-      throw new RuntimeException(e.getMessage(),e);
+      throw new RuntimeException(e.getMessage(), e);
     }
 
     LOG.info("======UserTailer_BulkLoad======= " + l + " users log send completed." + strings.size()
@@ -74,7 +74,7 @@ public class UserTailer_BulkLoad extends Tail {
     ObjectMapper objectMapper = new ObjectMapper();
     for (String log : logs) {
       String[] tmps = log.split("\t");
-      if (!(tmps.length == Constants.USER_ITEM_NUM || tmps.length == Constants.USER_ITEM_NUM+1)) {
+      if (!(tmps.length == Constants.USER_ITEM_NUM || tmps.length == Constants.USER_ITEM_NUM + 1)) {
         LOG.warn(log);
         continue;
       }
@@ -85,8 +85,10 @@ public class UserTailer_BulkLoad extends Tail {
         Map jsonMap = objectMapper.readValue(tmps[2], Map.class);
         for (Object entry : jsonMap.entrySet()) {
           if (entry instanceof Map.Entry) {
-            propKeys.add(((Map.Entry) entry).getKey().toString());
-            propValues.add(((Map.Entry) entry).getValue().toString());
+            if (((Map.Entry) entry).getKey() != null && ((Map.Entry) entry).getValue() != null) {
+              propKeys.add(((Map.Entry) entry).getKey().toString());
+              propValues.add(((Map.Entry) entry).getValue().toString());
+            }
           }
         }
       } catch (Exception e) {
