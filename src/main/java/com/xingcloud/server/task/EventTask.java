@@ -54,6 +54,7 @@ public class EventTask implements Runnable {
                     putsMap.put(hbaseAddress, puts);
                 }
                 puts.add(put);
+
             }
             for (Map.Entry<String, List<Put>> entry : putsMap.entrySet()) {
                 boolean putHbase = true;

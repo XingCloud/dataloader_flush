@@ -180,7 +180,7 @@ public class Helper {
   }
 
   public static String getHBaseTableName(String project) {
-    return project + "_deu";
+    return "deu_" + project;
   }
 
   public static String getMySQLTableName(String project) {

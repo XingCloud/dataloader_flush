@@ -45,16 +45,19 @@ public class Constants {
 
   public static int DELAY_ONCE_READ = 10000;
 
-  public static final String EVENT_TAIL_CONF_PATH = "/data/log/eventfixconfig";
+  //  public static final String EVENT_TAIL_CONF_PATH = "/data/log/eventfixconfig";
+  public static final String EVENT_TAIL_CONF_PATH = "/data/log/event16config";
 
   public static final String HBASE_FLUSH_POINT = "hbase_flush_checkpoint";
 
   public static final String SEND_PROCESS = "sendlog.process";
 
-  public static final String USER_TAIL_CONF_PATH = "/data/log/userfixconfig";
+  //  public static final String USER_TAIL_CONF_PATH = "/data/log/userfixconfig";
+  public static final String USER_TAIL_CONF_PATH = "/data/log/user16config";
 
 
-  public static final String USER_LOAD_PATH = "/data/log/userload/";
+  //  public static final String USER_LOAD_PATH = "/data/log/userload/
+  public static final String USER_LOAD_PATH = "/data/log/user16load/";
 
   public static final int MYSQL_BATCH_UPDATE_SIZE = 1000;
 

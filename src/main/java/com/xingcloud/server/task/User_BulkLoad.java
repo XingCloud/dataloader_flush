@@ -1,8 +1,6 @@
 package com.xingcloud.server.task;
 
-import com.xingcloud.mysql.UserProp;
-import com.xingcloud.server.helper.ProjectPropertyCache;
-import org.apache.commons.lang.StringEscapeUtils;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -14,7 +12,7 @@ import java.util.List;
  * Time: 上午9:53
  */
 public class User_BulkLoad {
-  private static Log LOG = LogFactory.getLog(User.class);
+  private static Log LOG = LogFactory.getLog(User_BulkLoad.class);
 
   private String project;
 

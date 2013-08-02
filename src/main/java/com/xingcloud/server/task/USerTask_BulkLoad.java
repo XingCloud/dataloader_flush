@@ -1,5 +1,6 @@
 package com.xingcloud.server.task;
 
+
 import com.xingcloud.mysql.MySql_16seqid;
 import com.xingcloud.mysql.UpdateFunc;
 import com.xingcloud.server.helper.Constants;
@@ -57,9 +58,7 @@ public class USerTask_BulkLoad implements Runnable {
               + " ms.size:" + users.size());
 
       currentTime = System.currentTimeMillis();
-
       incSqlsLoadToMySQL(incSqls);
-
       LOG.info("USerTask_BulkLoad==== " + project + " incSqlsLoadToMySQL using time: " + (System.currentTimeMillis() - currentTime)
               + " ms.size:" + users.size());
 
@@ -251,26 +250,8 @@ public class USerTask_BulkLoad implements Runnable {
   }
 
 
-  private boolean checkInHot(User_BulkLoad user) throws SQLException {
-    Connection conn;
-    Statement stat = null;
-    ResultSet resultSet = null;
-    try {
-      conn = getUidConn(project, user.getSeqUid());
-      stat = conn.createStatement();
-      resultSet = stat.executeQuery("select uid from `register_time` where uid=" + user.getSamplingUid() + ";");
-      return resultSet.next();
-    } finally {
-      if (resultSet != null)
-        resultSet.close();
-      if (stat != null)
-        stat.close();
-    }
-  }
 
-  private void cold2Hot(User_BulkLoad user) throws SQLException {
-    MySql_16seqid.getInstance().cold2hot(project, user.getSamplingUid());
-  }
+
 
   private Connection getUidConn(String dbName, long seqUid) throws SQLException {
     String nodeAddress = UidMappingUtil.getInstance().hash(seqUid);
@@ -363,7 +344,6 @@ public class USerTask_BulkLoad implements Runnable {
             Runtime rt = Runtime.getRuntime();
             execShellCmd(rt, cmds);
             clearTmpDataFiles(nodeAddress);
-
             break;
           } catch (InterruptedException ie) {
             break;

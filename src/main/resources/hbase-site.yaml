@@ -1,18 +1,50 @@
 zookeepers:
-  -  name:  192.168.1.148
+  -  name:  node0
      port:  3181
 
-  -  name:  192.168.1.147
+  -  name:  node1
      port:  3181
 
-  -  name:  192.168.1.150
+  -  name:  node2
      port:  3181
 
-  -  name:  192.168.1.151
+  -  name:  node3
      port:  3181
 
-  -  name:  192.168.1.152
+  -  name:  node4
      port:  3181
 
-  -  name:  192.168.1.154
+  -  name:  node5
      port:  3181
+
+  -  name:  node6
+     port:  3181
+
+  -  name:  node7
+     port:  3181
+
+  -  name:  node8
+     port:  3181
+
+  -  name:  node9
+     port:  3181
+
+  -  name:  node10
+     port:  3181
+
+  -  name:  node11
+     port:  3181
+
+  -  name:  node12
+     port:  3181
+
+  -  name:  node13
+     port:  3181
+
+  -  name:  node14
+     port:  3181
+
+  -  name:  node15
+     port:  3181
+
+

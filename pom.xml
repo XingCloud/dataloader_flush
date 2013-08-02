@@ -63,7 +63,7 @@
         <dependency>
             <groupId>com.xingcloud.xa</groupId>
             <artifactId>dbutil</artifactId>
-            <version>1.1</version>
+            <version>1.2</version>
         </dependency>
         <dependency>
             <groupId>com.xingcloud.xa</groupId>
@@ -89,7 +89,7 @@
 
                     <archive>
                         <manifest>
-                            <mainClass>com.xingcloud.server.DataLoaderFlushFixWather</mainClass>
+                            <mainClass>com.xingcloud.server.DataLoaderFlush16Wather</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
