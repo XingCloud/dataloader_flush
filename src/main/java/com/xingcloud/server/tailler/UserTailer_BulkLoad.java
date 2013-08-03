@@ -85,8 +85,10 @@ public class UserTailer_BulkLoad extends Tail {
         Map jsonMap = objectMapper.readValue(tmps[2], Map.class);
         for (Object entry : jsonMap.entrySet()) {
           if (entry instanceof Map.Entry) {
-            propKeys.add(((Map.Entry) entry).getKey().toString());
-            propValues.add(((Map.Entry) entry).getValue().toString());
+            if (((Map.Entry) entry).getKey() != null && ((Map.Entry) entry).getValue() != null) {
+              propKeys.add(((Map.Entry) entry).getKey().toString());
+              propValues.add(((Map.Entry) entry).getValue().toString());
+            }
           }
         }
       } catch (IOException e) {
