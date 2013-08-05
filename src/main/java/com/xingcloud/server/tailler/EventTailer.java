@@ -54,7 +54,7 @@ public class EventTailer extends Tail {
                 eventExecutor.shutdownNow();
                 throw new RuntimeException("eventExecutor timeout.");
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             LOG.error(e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
