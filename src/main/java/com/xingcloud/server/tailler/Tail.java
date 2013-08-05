@@ -149,7 +149,7 @@ public abstract class Tail {
                             }
                         }
                         if (userLogEnd) {
-                            OfflineDumpMySQL.waitOfflineDumpMySQL();
+//                            OfflineDumpMySQL.waitOfflineDumpMySQL();
                         }
                     }
                 }
