@@ -344,16 +344,18 @@ public class USerTask_BulkLoad implements Runnable {
           if (updateFunc == UpdateFunc.once) {
             String onceCmd = String.format("LOAD DATA LOCAL INFILE '%s' IGNORE INTO TABLE %s;", filePath, tableName);
             stringBuilder.append(onceCmd);
+            stringBuilder.append("commit;");
           } else if (updateFunc == UpdateFunc.cover) {
             String coverCmd = String.format("LOAD DATA LOCAL INFILE '%s' REPLACE INTO TABLE %s;", filePath,
                     tableName);
             stringBuilder.append(coverCmd);
+            stringBuilder.append("commit;");
           }
 
         }
       }
       if (nodeHasData) {
-        stringBuilder.append("commit;");
+
         String cmd = String.format("mysql -h%s -u%s -p%s -e\"%s\"", nodeAddress, "xingyun", "Ohth3cha", stringBuilder.toString());
         String[] cmds = new String[]{"/bin/sh", "-c", cmd};
 
