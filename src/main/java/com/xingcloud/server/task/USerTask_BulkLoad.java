@@ -217,10 +217,20 @@ public class USerTask_BulkLoad implements Runnable {
     MySQLBulkLoadExecutor mySQLBulkLoadExecutor = new MySQLBulkLoadExecutor();
 
     for (Map.Entry<String, Set<String>> entry : nodeTables.entrySet()) {
-      String nodeAddress = entry.getKey();
-      Set<String> tableNames = entry.getValue();
-      LoadChildThread loadChildThread = new LoadChildThread(nodeAddress, tableNames.toArray(new String[tableNames.size()]));
-      mySQLBulkLoadExecutor.execute(loadChildThread);
+      for (String tableName : entry.getValue()) {
+        UpdateFunc updateFunc = projectPropertyCache.getUserPro(tableName).getPropFunc();
+        if (updateFunc == null) {
+          LOG.info(tableName + " proper is null.IMPORT====");
+          continue;
+        }
+
+        String filePath = Constants.USER_LOAD_PATH + project + "_" + entry.getKey() + "_" + tableName;
+        File file = new File(filePath);
+        if (file.exists()) {
+          LoadChildThread loadChildThread = new LoadChildThread(tableName, entry.getKey(), filePath, updateFunc);
+          mySQLBulkLoadExecutor.execute(loadChildThread);
+        }
+      }
     }
     mySQLBulkLoadExecutor.shutdown();
 
@@ -242,9 +252,9 @@ public class USerTask_BulkLoad implements Runnable {
   /**
    * 删掉数据文件。
    */
-  private void clearTmpDataFiles(String node) throws Exception {
+  private void clearTmpDataFiles(String filePath) throws Exception {
     Runtime rt = Runtime.getRuntime();
-    String rmCmd = "rm " + Constants.USER_LOAD_PATH + project + "_" + node + "_*";
+    String rmCmd = "rm " + filePath;
     String[] cmds = new String[]{"/bin/sh", "-c", rmCmd};
 //    LOG.info("execShellCmd====" + rmCmd);
     execShellCmd(rt, cmds);
@@ -293,70 +303,52 @@ public class USerTask_BulkLoad implements Runnable {
   }
 
   private void execShellCmd(Runtime rt, String[] cmds) throws Exception {
-    Process process = rt.exec(cmds);
-    BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
-    BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-    String cmdOutput = null;
-    while ((cmdOutput = stdInput.readLine()) != null)
-      LOG.warn(cmdOutput);
-    while ((cmdOutput = stdError.readLine()) != null) {
-      if(cmdOutput.contains("Can't connect to MySQL server on")){
-        LOG.error(cmdOutput);
-      } else{
-        cmdOutput = cmdOutput.replaceAll("ERROR", "e");
-        LOG.warn(cmdOutput);
-      }
-    }
-    int result = process.waitFor();
-    if (result != 0)
-      throw new RuntimeException("exec result not 0.");
+//    Process process = rt.exec(cmds);
+//    BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
+//    BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+//    String cmdOutput = null;
+//    while ((cmdOutput = stdInput.readLine()) != null)
+//      LOG.warn(cmdOutput);
+//    while ((cmdOutput = stdError.readLine()) != null) {
+//      if (cmdOutput.contains("Can't connect to MySQL server on")) {
+//        LOG.error(cmdOutput);
+//      } else {
+//        cmdOutput = cmdOutput.replaceAll("ERROR", "e");
+//        LOG.warn(cmdOutput);
+//      }
+//    }
+//    int result = process.waitFor();
+//    if (result != 0)
+//      throw new RuntimeException("exec result not 0.");
     LOG.info("execShellCmd====" + cmds[2]);
   }
 
   class LoadChildThread implements Runnable {
 
+    private String tableName;
     private String nodeAddress;
-    private String[] tableNames;
+    private String filePath;
+    private UpdateFunc updateFunc;
 
-    public LoadChildThread(String nodeAddress, String[] tableNames) {
+    public LoadChildThread(String tableName, String nodeAddress, String filePath, UpdateFunc updateFunc) {
+      this.tableName = tableName;
       this.nodeAddress = nodeAddress;
-      this.tableNames = tableNames;
+      this.filePath = filePath;
+      this.updateFunc = updateFunc;
     }
 
     @Override
     public void run() {
-      StringBuilder stringBuilder = new StringBuilder();
-      stringBuilder.append("use fix_");
-      stringBuilder.append(project);
-      stringBuilder.append(";set autocommit = 0;");
-      boolean nodeHasData = false;
-
-      for (String tableName : tableNames) {
-        UpdateFunc updateFunc = projectPropertyCache.getUserPro(tableName).getPropFunc();
-        if (updateFunc == null) {
-          LOG.info(tableName + " proper is null.IMPORT====");
-          continue;
-        }
-        String filePath = Constants.USER_LOAD_PATH + project + "_" + nodeAddress + "_" + tableName;
-        File file = new File(filePath);
-        if (file.exists()) {
-          nodeHasData = true;
-          if (updateFunc == UpdateFunc.once) {
-            String onceCmd = String.format("LOAD DATA LOCAL INFILE '%s' IGNORE INTO TABLE %s;", filePath, tableName);
-            stringBuilder.append(onceCmd);
-            stringBuilder.append("commit;");
-          } else if (updateFunc == UpdateFunc.cover) {
-            String coverCmd = String.format("LOAD DATA LOCAL INFILE '%s' REPLACE INTO TABLE %s;", filePath,
-                    tableName);
-            stringBuilder.append(coverCmd);
-            stringBuilder.append("commit;");
-          }
-
-        }
+      String onceOrCoverCmd = null;
+      if (updateFunc == UpdateFunc.once) {
+        onceOrCoverCmd = String.format("user fix_%s;LOAD DATA LOCAL INFILE '%s' IGNORE INTO TABLE %s;",
+                project, filePath, tableName);
+      } else if (updateFunc == UpdateFunc.cover) {
+        onceOrCoverCmd = String.format("user fix_%s;LOAD DATA LOCAL INFILE '%s' REPLACE INTO TABLE %s;",
+                project, filePath, tableName);
       }
-      if (nodeHasData) {
-
-        String cmd = String.format("mysql -h%s -u%s -p%s -e\"%s\"", nodeAddress, "xingyun", "Ohth3cha", stringBuilder.toString());
+      if (onceOrCoverCmd != null) {
+        String cmd = String.format("mysql -h%s -u%s -p%s -e\"%s\"", nodeAddress, "xingyun", "Ohth3cha", onceOrCoverCmd);
         String[] cmds = new String[]{"/bin/sh", "-c", cmd};
 
         long currentTime = System.currentTimeMillis();
@@ -364,8 +356,7 @@ public class USerTask_BulkLoad implements Runnable {
           try {
             Runtime rt = Runtime.getRuntime();
             execShellCmd(rt, cmds);
-            clearTmpDataFiles(nodeAddress);
-
+            clearTmpDataFiles(filePath);
             break;
           } catch (InterruptedException ie) {
             break;
@@ -378,9 +369,9 @@ public class USerTask_BulkLoad implements Runnable {
             }
           }
         }
-        LOG.info(project + "\t" + nodeAddress + "\t using time:\t" + (System.currentTimeMillis() - currentTime) + "\tms.");
+        LOG.info(project + "\t" + nodeAddress + "\t" + tableName + "\t using time:\t" + (System.currentTimeMillis() -
+                currentTime) + "\tms.");
       }
     }
   }
-
 }
