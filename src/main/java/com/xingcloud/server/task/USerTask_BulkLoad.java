@@ -306,10 +306,10 @@ public class USerTask_BulkLoad implements Runnable {
     public Boolean call() throws Exception {
       String onceOrCoverCmd = null;
       if (updateFunc == UpdateFunc.once) {
-        onceOrCoverCmd = String.format("use fix_%s;LOAD DATA LOCAL INFILE '%s' IGNORE INTO TABLE %s;",
+        onceOrCoverCmd = String.format("use 16_%s;LOAD DATA LOCAL INFILE '%s' IGNORE INTO TABLE %s;",
                 project, filePath, tableName);
       } else if (updateFunc == UpdateFunc.cover) {
-        onceOrCoverCmd = String.format("use fix_%s;LOAD DATA LOCAL INFILE '%s' REPLACE INTO TABLE %s;",
+        onceOrCoverCmd = String.format("use 16_%s;LOAD DATA LOCAL INFILE '%s' REPLACE INTO TABLE %s;",
                 project, filePath, tableName);
       }
       if (onceOrCoverCmd != null) {
