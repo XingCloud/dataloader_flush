@@ -303,24 +303,24 @@ public class USerTask_BulkLoad implements Runnable {
   }
 
   private void execShellCmd(Runtime rt, String[] cmds) throws Exception {
-//    Process process = rt.exec(cmds);
-//    BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
-//    BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-//    String cmdOutput = null;
-//    while ((cmdOutput = stdInput.readLine()) != null)
-//      LOG.warn(cmdOutput);
-//    while ((cmdOutput = stdError.readLine()) != null) {
-//      if (cmdOutput.contains("Can't connect to MySQL server on")) {
-//        LOG.error(cmdOutput);
-//      } else {
-//        cmdOutput = cmdOutput.replaceAll("ERROR", "e");
-//        LOG.warn(cmdOutput);
-//      }
-//    }
-//    int result = process.waitFor();
-//    if (result != 0)
-//      throw new RuntimeException("exec result not 0.");
-    Thread.sleep(6*1000);
+    Process process = rt.exec(cmds);
+    BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
+    BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+    String cmdOutput = null;
+    while ((cmdOutput = stdInput.readLine()) != null)
+      LOG.warn(cmdOutput);
+    while ((cmdOutput = stdError.readLine()) != null) {
+      if (cmdOutput.contains("Can't connect to MySQL server on")) {
+        LOG.error(cmdOutput);
+      } else {
+        cmdOutput = cmdOutput.replaceAll("ERROR", "e");
+        LOG.warn(cmdOutput);
+      }
+    }
+    int result = process.waitFor();
+    if (result != 0)
+      throw new RuntimeException("exec result not 0.");
+
     LOG.info("execShellCmd====" + cmds[2]);
   }
 
@@ -342,10 +342,10 @@ public class USerTask_BulkLoad implements Runnable {
     public void run() {
       String onceOrCoverCmd = null;
       if (updateFunc == UpdateFunc.once) {
-        onceOrCoverCmd = String.format("user fix_%s;LOAD DATA LOCAL INFILE '%s' IGNORE INTO TABLE %s;",
+        onceOrCoverCmd = String.format("use fix_%s;LOAD DATA LOCAL INFILE '%s' IGNORE INTO TABLE %s;",
                 project, filePath, tableName);
       } else if (updateFunc == UpdateFunc.cover) {
-        onceOrCoverCmd = String.format("user fix_%s;LOAD DATA LOCAL INFILE '%s' REPLACE INTO TABLE %s;",
+        onceOrCoverCmd = String.format("use fix_%s;LOAD DATA LOCAL INFILE '%s' REPLACE INTO TABLE %s;",
                 project, filePath, tableName);
       }
       if (onceOrCoverCmd != null) {
