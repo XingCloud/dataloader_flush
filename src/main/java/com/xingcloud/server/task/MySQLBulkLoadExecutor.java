@@ -13,8 +13,15 @@ import java.util.concurrent.TimeUnit;
  */
 public class MySQLBulkLoadExecutor extends ThreadPoolExecutor {
 
+  private static final MySQLBulkLoadExecutor instance = new MySQLBulkLoadExecutor();
 
-  public MySQLBulkLoadExecutor() {
+
+  private MySQLBulkLoadExecutor() {
     super(Constants.MYSQL_BL_THREADS, Constants.MYSQL_BL_THREADS, 30, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>());
   }
+
+  public static MySQLBulkLoadExecutor getInstance() {
+    return instance;
+  }
 }
+
