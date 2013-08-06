@@ -320,6 +320,7 @@ public class USerTask_BulkLoad implements Runnable {
 //    int result = process.waitFor();
 //    if (result != 0)
 //      throw new RuntimeException("exec result not 0.");
+    Thread.sleep(3*1000);
     LOG.info("execShellCmd====" + cmds[2]);
   }
 
