@@ -225,7 +225,7 @@ public class USerTask_BulkLoad implements Runnable {
 
     for(Future<Boolean> booleanFuture:futures){
       try {
-        booleanFuture.get(30,TimeUnit.MINUTES);
+        booleanFuture.get(100,TimeUnit.MINUTES);
       } catch (ExecutionException e) {
         LOG.error(e.getMessage(),e);
       } catch (TimeoutException e) {
