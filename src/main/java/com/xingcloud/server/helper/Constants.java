@@ -23,7 +23,7 @@ public class Constants {
 
   public static String HBASE_PORT = "3181";
 
-  public static int EXECUTOR_TIME_MIN = 120;
+  public static int EXECUTOR_TIME_MIN = 180;
 
   public static int MYSQLBL_TIME_MIN = 12;
 
@@ -39,7 +39,7 @@ public class Constants {
 
   public static int USER_ONCE_READ = 3 * 10000;
 
-  public static int USER_BULK_LOAD_ONCE_READ =120 * 10000;
+  public static int USER_BULK_LOAD_ONCE_READ =500 * 10000;
 
   public static int EXECUTOR_THREAD_COUNT = 30;
 
