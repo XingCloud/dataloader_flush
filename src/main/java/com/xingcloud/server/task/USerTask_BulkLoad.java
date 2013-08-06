@@ -230,6 +230,7 @@ public class USerTask_BulkLoad implements Runnable {
         LOG.error(e.getMessage(),e);
       } catch (TimeoutException e) {
         LOG.error(e.getMessage(),e);
+        booleanFuture.cancel(true);
       }
     }
   }
@@ -338,8 +339,8 @@ public class USerTask_BulkLoad implements Runnable {
         String[] cmds = new String[]{"/bin/sh", "-c", cmd};
 
         long currentTime = System.currentTimeMillis();
-        int tryTimes = 3;
-        for(int i = 0 ;i<tryTimes;i++){
+
+        while (true){
           try {
             Runtime rt = Runtime.getRuntime();
             execShellCmd(rt, cmds);
