@@ -23,7 +23,7 @@ public class Constants {
 
   public static String HBASE_PORT = "3181";
 
-  public static int EXECUTOR_TIME_MIN = 180;
+  public static int EXECUTOR_TIME_MIN = 360;
 
   public static int MYSQLBL_TIME_MIN = 12;
 
