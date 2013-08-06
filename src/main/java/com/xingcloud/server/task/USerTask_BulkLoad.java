@@ -15,7 +15,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * User: IvyTang
@@ -202,19 +202,9 @@ public class USerTask_BulkLoad implements Runnable {
    * @param nodeTables
    */
   private void bulkLoad(Map<String, Set<String>> nodeTables) throws InterruptedException {
-    //bulk load
-//    String[] key_nodes = nodeTables.keySet().toArray(new String[nodeTables.keySet().size()]);
-//    Helper.shuffle(key_nodes);
 
-//
-//    for (String key_node : key_nodes) {
-//      String[] table_names = nodeTables.get(key_node).toArray(new String[nodeTables.get(key_node).size()]);
-//      Helper.shuffle(table_names);
-//      LoadChildThread loadChildThread = new LoadChildThread(key_node, table_names);
-//      mySQLBulkLoadExecutor.execute(loadChildThread);
-//    }
 
-    MySQLBulkLoadExecutor mySQLBulkLoadExecutor = new MySQLBulkLoadExecutor();
+    List<Future<Boolean>>  futures =  new ArrayList<Future<Boolean>>();
 
     for (Map.Entry<String, Set<String>> entry : nodeTables.entrySet()) {
       for (String tableName : entry.getValue()) {
@@ -223,29 +213,24 @@ public class USerTask_BulkLoad implements Runnable {
           LOG.info(tableName + " proper is null.IMPORT====");
           continue;
         }
-
         String filePath = Constants.USER_LOAD_PATH + project + "_" + entry.getKey() + "_" + tableName;
         File file = new File(filePath);
         if (file.exists()) {
           LoadChildThread loadChildThread = new LoadChildThread(tableName, entry.getKey(), filePath, updateFunc);
-          mySQLBulkLoadExecutor.execute(loadChildThread);
+          Future<Boolean> future = MySQLBulkLoadExecutor.getInstance().submit(loadChildThread);
+          futures.add(future);
         }
       }
     }
-    mySQLBulkLoadExecutor.shutdown();
 
-    try {
-      if (!mySQLBulkLoadExecutor.awaitTermination(Constants.MYSQLBL_TIME_MIN,
-              TimeUnit.HOURS)) {     //不能让childThread出现超时的情况，只能由userExecutor发起 shutdownNow。
-        mySQLBulkLoadExecutor.shutdownNow();
-        throw new RuntimeException("MySQLBulkLoadExecutor:LoadChildThread timeout.");
+    for(Future<Boolean> booleanFuture:futures){
+      try {
+        booleanFuture.get(30,TimeUnit.MINUTES);
+      } catch (ExecutionException e) {
+        LOG.error(e.getMessage(),e);
+      } catch (TimeoutException e) {
+        LOG.error(e.getMessage(),e);
       }
-    } catch (InterruptedException e) {
-      //如果mysql bulk load child thread没有完成，但是userExecutor已经超时，userExecutor执行shutdownnow操作，会使mySQLBulkLoadExecutor
-      //抛错InterruptedException，这时候需要再 mySQLBulkLoadExecutor.shutdownNow()
-      //让mySQLBulkLoadExecutor的子线程也抛错；否则mySQLBulkLoadExecutor的子线程会成为僵尸线程。
-      mySQLBulkLoadExecutor.shutdownNow();
-      throw e;
     }
   }
 
@@ -324,7 +309,7 @@ public class USerTask_BulkLoad implements Runnable {
     LOG.info("execShellCmd====" + cmds[2]);
   }
 
-  class LoadChildThread implements Runnable {
+  class LoadChildThread implements Callable<Boolean> {
 
     private String tableName;
     private String nodeAddress;
@@ -339,7 +324,7 @@ public class USerTask_BulkLoad implements Runnable {
     }
 
     @Override
-    public void run() {
+    public Boolean call() throws Exception {
       String onceOrCoverCmd = null;
       if (updateFunc == UpdateFunc.once) {
         onceOrCoverCmd = String.format("use fix_%s;LOAD DATA LOCAL INFILE '%s' IGNORE INTO TABLE %s;",
@@ -353,7 +338,8 @@ public class USerTask_BulkLoad implements Runnable {
         String[] cmds = new String[]{"/bin/sh", "-c", cmd};
 
         long currentTime = System.currentTimeMillis();
-        while (true) {
+        int tryTimes = 3;
+        for(int i = 0 ;i<tryTimes;i++){
           try {
             Runtime rt = Runtime.getRuntime();
             execShellCmd(rt, cmds);
@@ -370,9 +356,13 @@ public class USerTask_BulkLoad implements Runnable {
             }
           }
         }
+
+
+
         LOG.info(project + "\t" + nodeAddress + "\t" + tableName + "\t using time:\t" + (System.currentTimeMillis() -
                 currentTime) + "\tms.");
       }
+      return true;
     }
   }
 }
