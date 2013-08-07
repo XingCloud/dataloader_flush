@@ -35,6 +35,6 @@ ssh ${node} kill $pid
 done
     echo "afterkill"
     ssh ${node} ps aux|grep $main|awk '{print$2}'
-    ssh ${node} nohup /usr/java/jdk/bin/java $fileencoding $memarg $gcarg $verboses -Dxa.nodehash=/home/hadoop/xa/runJar/conf/nodehash.properties-classpath ${runJar}/${jar} $main > /dev/null 2>&1 &
+    ssh ${node} nohup /usr/java/jdk/bin/java $fileencoding $memarg $gcarg $verboses -Dxa.nodehash=/home/hadoop/xa/runJar/conf/nodehash.properties -classpath ${runJar}/${jar} $main > /dev/null 2>&1 &
     #ssh ${node} nohup ${hadoopsh} jar ${runJar}/${jar} $main   >/dev/null 2>&1 &
 done
