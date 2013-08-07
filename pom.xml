@@ -62,14 +62,15 @@
         <!---xa third-party libs -->
         <dependency>
             <groupId>com.xingcloud.xa</groupId>
-            <artifactId>dbutil</artifactId>
+            <artifactId>hashutil</artifactId>
             <version>1.2</version>
         </dependency>
         <dependency>
             <groupId>com.xingcloud.xa</groupId>
-            <artifactId>hashutil</artifactId>
-            <version>1.1</version>
+            <artifactId>dbutil</artifactId>
+            <version>1.2</version>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -89,7 +90,7 @@
 
                     <archive>
                         <manifest>
-                            <mainClass>com.xingcloud.server.DataLoaderFlush16Wather</mainClass>
+                            <mainClass>com.xingcloud.server.DataLoaderFlush16TmpWather</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
