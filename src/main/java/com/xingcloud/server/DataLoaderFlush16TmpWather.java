@@ -21,9 +21,9 @@ import java.io.IOException;
  * Date: 12-11-28
  * Time: 下午1:14
  */
-public class DataLoaderFlush16Wather {
+public class DataLoaderFlush16TmpWather {
 
-  private static final Log LOG = LogFactory.getLog(DataLoaderFlush16Wather.class);
+  private static final Log LOG = LogFactory.getLog(DataLoaderFlush16TmpWather.class);
 
   public static void main(String[] args) throws IOException, ConfException {
     Log4jProperties.init();
