@@ -29,16 +29,17 @@ public class DataLoaderFlush16TmpWather {
   public static void main(String[] args) throws IOException, ConfException {
 
     Log4jProperties.init();
-//    Thread eventThread = new Thread(new EventTailerRunnable(new EventTailer(Constants.EVENT_TAIL_CONF_PATH)));
+    LOG.info(UidMappingUtil.getInstance().nodes());
+
+    Thread eventThread = new Thread(new EventTailerRunnable(new EventTailer(Constants.EVENT_TAIL_CONF_PATH)));
     Thread userBulkLoadThread = new Thread(new UserTailerRunnable_BulkLoad(new UserTailer_BulkLoad(Constants.USER_TAIL_CONF_PATH)));
-//    Thread monitorThread = new Thread(new MonitorRunnable());
-//    eventThread.start();
-//    LOG.info("event thread starting...");
+
+    eventThread.start();
+    LOG.info("event thread starting...");
+
     userBulkLoadThread.start();
     LOG.info("user bulkload thread starting...");
-    LOG.info(UidMappingUtil.getInstance().nodes());
-//    monitorThread.start();
-//    LOG.info("monitor thread starting...");
+
 
   }
 }
