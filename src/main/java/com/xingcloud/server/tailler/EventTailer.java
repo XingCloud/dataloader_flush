@@ -3,6 +3,7 @@ package com.xingcloud.server.tailler;
 import com.xingcloud.server.hbaseflush.HBaseFlushStatus;
 import com.xingcloud.server.helper.Constants;
 import com.xingcloud.server.helper.Helper;
+import com.xingcloud.server.helper.SpecialProjects;
 import com.xingcloud.server.task.Event;
 import com.xingcloud.server.task.EventTask;
 import com.xingcloud.server.task.FlushExecutor;
@@ -35,9 +36,6 @@ public class EventTailer extends Tail {
 
     @Override
     public void send(List<String> strings, long l) {
-//        if (HBaseFlushStatus.FLUSHSTATUS.equals(HBaseFlushStatus.NEEDFLUSH)) {
-//            flushHBase();
-//        }
         LOG.info("======EventTailer=======" + l + " events log ..." + strings.size());
         long currentTime = System.currentTimeMillis();
         try {
@@ -70,6 +68,8 @@ public class EventTailer extends Tail {
                 LOG.warn(log);
                 continue;
             }
+            if(!SpecialProjects.getSpecialProjects().contains(tmps[0]))
+                continue;
             Event event = null;
             try {
                 event = new Event(Long.valueOf(tmps[1]), tmps[2], Long.valueOf(tmps[4]), Long.valueOf(tmps[3]));
@@ -86,33 +86,4 @@ public class EventTailer extends Tail {
         }
         return putsMap;
     }
-
-    private void flushHBase() {
-        LOG.info("receive hbase need flushing signal.");
-        long[] sendFinishedLines = Helper.getSendLogPosition();
-        long currentTime = System.currentTimeMillis();
-        String localIp = Helper.getLocalIp();
-        if (localIp != null && localIp.equals("192.168.1.142")) {
-            LOG.info("192.168.1.142 begin flushing hbase...log has send:" + sendFinishedLines[0] + ":" +
-                    sendFinishedLines[1]);
-            Set<String> projects = Helper.getAllProjects();
-            FlushExecutor eventExecutor = new FlushExecutor();
-            for (String project : projects)
-                eventExecutor.execute(new HBaseFlushTask(project));
-            eventExecutor.shutdown();
-            try {
-                eventExecutor.awaitTermination(Constants.EXECUTOR_TIME_MIN, TimeUnit.MINUTES);
-            } catch (InterruptedException e) {
-                LOG.error("hbase flush table error." + e.getMessage());
-            }
-        }
-
-        Helper.hbaseFlushCheckpoint(sendFinishedLines[0], sendFinishedLines[1]);
-        LOG.info("flush hbase completed.using " + (System.currentTimeMillis() - currentTime) + "ms.log has " +
-                "flush: " + sendFinishedLines[0] + ":" + sendFinishedLines[1]);
-        HBaseFlushStatus.FLUSHSTATUS = HBaseFlushStatus.FLUSHCOMPLETED;
-
-    }
-
-
 }

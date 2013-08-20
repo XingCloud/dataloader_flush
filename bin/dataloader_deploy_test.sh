@@ -12,7 +12,7 @@ logDir=${workDir}/log
 runJar=${workDir}/runJar
 
 jar="flush-1.0.0-jar-with-dependencies.jar";
-testjar="dataloader_flush_fix16tmp_test.jar";
+testjar="dataloader_flush_fix16repair_test.jar";
 
 pwd=$(cd "$(dirname "$0")"; pwd)
 nowDir=`dirname $pwd`
