@@ -68,7 +68,7 @@ public class EventTask implements Runnable {
       try {
         if (!flushExecutor.awaitTermination(Constants.MYSQLBL_TIME_MIN,TimeUnit.HOURS)) {     //不能让childThread出现超时的情况，只能由userExecutor发起 shutdownNow。
           flushExecutor.shutdownNow();
-          throw new RuntimeException("MySQLBulkLoadExecutor:LoadChildThread timeout.");
+          throw new RuntimeException("EventFlushChildTask timeout.");
         }
       } catch (InterruptedException e) {
         //如果mysql bulk load child thread没有完成，但是userExecutor已经超时，userExecutor执行shutdownnow操作，会使mySQLBulkLoadExecutor
@@ -112,7 +112,7 @@ class EventFlushChildTask implements Runnable {
 
         table = new HTable(HBaseConf.getInstance().getHBaseConf(hbaseip),
                 Helper.getHBaseTableName(project));
-        LOG.info(project + hbaseip + " init htable .." + currentTime);
+//        LOG.info(project + hbaseip + " init htable .." + currentTime);
         table.setAutoFlush(false);
         table.setWriteBufferSize(Constants.WRITE_BUFFER_SIZE);
 
@@ -144,7 +144,7 @@ class EventFlushChildTask implements Runnable {
         try {
           if (table != null) {
             table.close();
-            LOG.info(project + " close this htable." + currentTime);
+//            LOG.info(project + " close this htable." + currentTime);
           }
         } catch (IOException e) {
           LOG.error(project + e.getMessage(), e);
