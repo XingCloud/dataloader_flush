@@ -219,7 +219,7 @@ public abstract class Tail {
     static final String PROP_DAY = "day";
 
     private int batchSize = 1000;
-    private long nologSleepTime = 20*1000L;
+    private long nologSleepTime = 200*1000L;
     private boolean logProcessPerBatch = false;
 
     protected String datadir = "/data/log/";
