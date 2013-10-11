@@ -29,6 +29,7 @@ public class ProjectPropertyCache {
 
   public UserProp getUserPro(String key) {
     if (list != null) {
+        // todo: eliminate list iteration
       for (UserProp userProp : list) {
         if (userProp.getPropName().equals(key)) return userProp;
       }

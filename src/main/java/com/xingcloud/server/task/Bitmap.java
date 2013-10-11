@@ -10,6 +10,8 @@ import java.util.Random;
  */
 public class Bitmap {
 
+  // todo: re-implement using java.util.BitSet
+
   private byte[] bits = new byte[1024];
   private static final int[] masks = new int[]{1,2,4,8,16,32,64,128};
   private static final int[] ormasks = new int[]{0xff-1,0xff-2,0xff-4,0xff-8,0xff-16,0xff-32,0xff-64,0xff-128};

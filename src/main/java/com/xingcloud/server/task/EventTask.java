@@ -110,6 +110,8 @@ class EventFlushChildTask implements Runnable {
       long currentTime = System.currentTimeMillis();
       try {
 
+        // todo: use connection pool?
+
         table = new HTable(HBaseConf.getInstance().getHBaseConf(hbaseip),
                 Helper.getHBaseTableName(project));
 //        LOG.info(project + hbaseip + " init htable .." + currentTime);

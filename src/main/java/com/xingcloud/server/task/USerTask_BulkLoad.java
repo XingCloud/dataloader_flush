@@ -37,6 +37,7 @@ public class USerTask_BulkLoad implements Runnable {
   public USerTask_BulkLoad(String project, List<User_BulkLoad> users) {
     this.project = project;
     this.users = users;
+    // todo: load user properties from mysql each time?
     this.projectPropertyCache = ProjectPropertyCache.resetProjectCache(project);
     this.cons = new HashMap<String, Connection>();
   }
@@ -53,6 +54,7 @@ public class USerTask_BulkLoad implements Runnable {
       Map<String, List<String>> incSqls = new HashMap<String, List<String>>();
 
       long currentTime = System.currentTimeMillis();
+      // todo: writers should be a local variable in prepareUsers method
       prepareUsers(writers, incSqls, nodeTables);
       LOG.info("USerTask_BulkLoad==== " + project + " prepareUsers using time: " + (System.currentTimeMillis() - currentTime)
               + " ms.size:" + users.size());
@@ -159,10 +161,18 @@ public class USerTask_BulkLoad implements Runnable {
     //sqls
     try {
       for (Map.Entry<String, List<String>> entry : incSqls.entrySet()) {
+        // todo: the following sort may take much time.
+        // in prepareUsers method, already sorted according to sample uid, why sort again?
+        // to group insert statements by table?
         Collections.sort(entry.getValue());
         Connection connection = getNodeConn(project, entry.getKey());
+
+        // todo: Rewriting Batches
+        // refer: http://assets.en.oreilly.com/1/event/21/Connector_J%20Performance%20Gems%20Presentation.pdf
+
         connection.setAutoCommit(false);
         Statement statement = connection.createStatement();
+        //todo: the following loop can be written in another way
         int loopTimes = entry.getValue().size() / Constants.MYSQL_BATCH_UPDATE_SIZE + (entry.getValue().size() %
                 Constants.MYSQL_BATCH_UPDATE_SIZE > 0 ? 1 : 0);
         for (int i = 0; i < loopTimes; i++) {
@@ -174,12 +184,14 @@ public class USerTask_BulkLoad implements Runnable {
             statement.addBatch(entry.getValue().get(index));
           }
           statement.executeBatch();
+          // todo: rollback and retry if fail
           connection.commit();
         }
         statement.close();
         connection.setAutoCommit(true);
       }
     } catch (SQLException e) {
+      // todo: infinite loop???
       while (true) {
         LOG.error("incSqlsLoadToMySQL error." + e.getMessage());
         Thread.sleep(dead_lock_sleep_time);
@@ -239,6 +251,7 @@ public class USerTask_BulkLoad implements Runnable {
    * 删掉数据文件。
    */
   private void clearTmpDataFiles(String filePath) throws Exception {
+    // todo: use File.delete() instead
     Runtime rt = Runtime.getRuntime();
     String rmCmd = "rm " + filePath;
     String[] cmds = new String[]{"/bin/sh", "-c", rmCmd};
@@ -261,6 +274,7 @@ public class USerTask_BulkLoad implements Runnable {
   private Connection getNodeConn(String dbName, String nodeAddress) throws SQLException {
     Connection conn = this.cons.get(nodeAddress);
     if (conn == null) {
+      // todo: connection pool used?
       conn = MySql_16seqid.getInstance().getConnByNode(dbName, nodeAddress);
       this.cons.put(nodeAddress, conn);
     }
@@ -312,6 +326,10 @@ public class USerTask_BulkLoad implements Runnable {
         onceOrCoverCmd = String.format("use 16_%s;LOAD DATA LOCAL INFILE '%s' REPLACE INTO TABLE %s;",
                 project, filePath, tableName);
       }
+
+      // todo: why not use statement.execute("LOAD DATA LOCAL INFILE") ?
+      // todo: It doesn’t need to be a file. It can be an InputStream.
+
       if (onceOrCoverCmd != null) {
         String cmd = String.format("mysql -h%s -u%s -p%s -e\"%s\"", nodeAddress, "xingyun", "Ohth3cha", onceOrCoverCmd);
         String[] cmds = new String[]{"/bin/sh", "-c", cmd};
