@@ -10,6 +10,7 @@ import com.xingcloud.xa.uidmapping.UidMappingUtil;
 import org.apache.commons.dbcp.DelegatingStatement;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -101,6 +102,7 @@ public class UserTaskBulkLoadV2 implements Runnable {
         String key = propKeys.get(i); // table name
         String value = propValues.get(i); // row value
 
+        //todo: if key is an invalid property
         if (projectPropertyCache.getUserPro(key).getPropFunc() == UpdateFunc.inc) {
           String incSql = "INSERT INTO `" + key + "` (uid,val) VALUES (" + user.getSamplingUid() + "," +
                   value + ") ON DUPLICATE KEY UPDATE val=val+" + value + ";";
@@ -119,7 +121,9 @@ public class UserTaskBulkLoadV2 implements Runnable {
             nodeTableSBMap.put(nodeTablePair, sb);
           }
 
-          sb.append(user.getSamplingUid()).append("\t").append(value).append("\n");
+//          sb.append(user.getSamplingUid()).append("\t").append(value).append("\n");
+          // csv format
+          sb.append(user.getSamplingUid()).append(",").append(StringEscapeUtils.escapeCsv(value)).append("\n");
         }
       }
     }
@@ -241,9 +245,15 @@ public class UserTaskBulkLoadV2 implements Runnable {
     public Boolean call() throws Exception {
       String loadDataSQL = null;
       if (updateFunc == UpdateFunc.once) {
-        loadDataSQL = String.format("LOAD DATA LOCAL INFILE 'ignore_me' IGNORE INTO TABLE %s;", tableName);
+        loadDataSQL = "load data local infile 'ignore_me' " +
+                      " ignore into table " + tableName +
+                      " fields terminated by ',' optionally enclosed by '\"' escaped by '\"'";
+//        loadDataSQL = String.format("LOAD DATA LOCAL INFILE 'ignore_me' IGNORE INTO TABLE %s;", tableName);
       } else if (updateFunc == UpdateFunc.cover) {
-        loadDataSQL = String.format("LOAD DATA LOCAL INFILE 'ignore_me' REPLACE INTO TABLE %s;", tableName);
+        loadDataSQL = "load data local infile 'ignore_me' " +
+                      " replace into table " + tableName +
+                      " fields terminated by ',' optionally enclosed by '\"' escaped by '\"'";
+//        loadDataSQL = String.format("LOAD DATA LOCAL INFILE 'ignore_me' REPLACE INTO TABLE %s;", tableName);
       }
 
       if (loadDataSQL != null) {
