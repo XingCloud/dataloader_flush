@@ -50,8 +50,10 @@ public class UserTailer_BulkLoad extends Tail {
       String[] randomPids = usersMap.keySet().toArray(new String[usersMap.keySet().size()]);
       Helper.shuffle(randomPids);
       for (String pid : randomPids) {
-        USerTask_BulkLoad uSerTask_bulkLoad = new USerTask_BulkLoad(pid, usersMap.get(pid));
-        userExecutor.execute(uSerTask_bulkLoad);
+//        USerTask_BulkLoad uSerTask_bulkLoad = new USerTask_BulkLoad(pid, usersMap.get(pid));
+//        userExecutor.execute(uSerTask_bulkLoad);
+        UserTaskBulkLoadV2 userTaskBulkLoadV2 = new UserTaskBulkLoadV2(pid, usersMap.get(pid));
+        userExecutor.execute(userTaskBulkLoadV2);
       }
 
       userExecutor.shutdown();

@@ -49,6 +49,11 @@
             <version>1.4</version>
         </dependency>
         <dependency>
+            <groupId>commons-dbutils</groupId>
+            <artifactId>commons-dbutils</artifactId>
+            <version>1.5</version>
+        </dependency>
+        <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
             <version>2.1.0</version>
@@ -57,6 +62,12 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.18</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
         </dependency>
 
         <!---xa third-party libs -->
@@ -68,6 +79,11 @@
         <dependency>
             <groupId>com.xingcloud.xa</groupId>
             <artifactId>dbutil</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.xingcloud.xa</groupId>
+            <artifactId>confutil</artifactId>
             <version>1.2</version>
         </dependency>
 
