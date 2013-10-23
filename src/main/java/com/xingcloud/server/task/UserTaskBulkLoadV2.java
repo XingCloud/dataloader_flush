@@ -9,6 +9,7 @@ import com.xingcloud.xa.uidmapping.UidMappingUtil;
 
 import org.apache.commons.dbcp.DelegatingStatement;
 import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.logging.Log;
@@ -247,11 +248,13 @@ public class UserTaskBulkLoadV2 implements Runnable {
       if (updateFunc == UpdateFunc.once) {
         loadDataSQL = "load data local infile 'ignore_me' " +
                       " ignore into table " + tableName +
+                      " character set utf8 " +
                       " fields terminated by ',' optionally enclosed by '\"' escaped by '\"'";
 //        loadDataSQL = String.format("LOAD DATA LOCAL INFILE 'ignore_me' IGNORE INTO TABLE %s;", tableName);
       } else if (updateFunc == UpdateFunc.cover) {
         loadDataSQL = "load data local infile 'ignore_me' " +
                       " replace into table " + tableName +
+                      " character set utf8 " +
                       " fields terminated by ',' optionally enclosed by '\"' escaped by '\"'";
 //        loadDataSQL = String.format("LOAD DATA LOCAL INFILE 'ignore_me' REPLACE INTO TABLE %s;", tableName);
       }
@@ -273,7 +276,10 @@ public class UserTaskBulkLoadV2 implements Runnable {
             assert statement != null && statement instanceof com.mysql.jdbc.Statement;
 
             loadDataStatement = (com.mysql.jdbc.Statement)statement;
-            loadDataStatement.setLocalInfileInputStream(IOUtils.toInputStream(loadData.toString()));
+            // by default, mysql jdbc driver sets sql_mode to STRICT_TRANS_TABLES
+            // by setting sql_mode to none, we disable data truncation exception
+            loadDataStatement.execute("set sql_mode=''");
+            loadDataStatement.setLocalInfileInputStream(IOUtils.toInputStream(loadData.toString(), Charsets.UTF_8));
             loadDataStatement.execute(loadDataSQL);
             loadDataConnection.commit();
 
