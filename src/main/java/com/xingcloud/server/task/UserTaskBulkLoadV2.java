@@ -139,12 +139,14 @@ public class UserTaskBulkLoadV2 implements Runnable {
     Connection connection = null;
     Statement statement = null;
 
-    try {
-      for (Map.Entry<String, List<String>> entry : incSqls.entrySet()) {
-        // todo: the following sort may take much time.
-        // in prepareUsers method, already sorted according to sample uid, why sort again?
-        // to group insert statements by table?
-        Collections.sort(entry.getValue());
+    for (Map.Entry<String, List<String>> entry : incSqls.entrySet()) {
+      // todo: the following sort may take much time.
+      // in prepareUsers method, already sorted according to sample uid, why sort again?
+      // to group insert statements by table?
+      Collections.sort(entry.getValue());
+      LOG.info("project: " + project + ", node: " + entry.getKey() + ", insert sql count: " + entry.getValue().size());
+
+      try {
         connection = getNodeConn(project, entry.getKey());
 
         // todo: Rewriting Batches
@@ -168,16 +170,16 @@ public class UserTaskBulkLoadV2 implements Runnable {
           // todo: rollback and retry if fail
           connection.commit();
         }
+      } catch (SQLException e) {
+        //todo: infinite loop???
+        while (true) {
+          LOG.error("incSqlsLoadToMySQL error." + e.getMessage());
+          Thread.sleep(MS_WHEN_SQL_EXCEPTION);
+        }
+      } finally {
+        DbUtils.closeQuietly(statement);
+        DbUtils.closeQuietly(connection);
       }
-    } catch (SQLException e) {
-      // todo: infinite loop???
-      while (true) {
-        LOG.error("incSqlsLoadToMySQL error." + e.getMessage());
-        Thread.sleep(MS_WHEN_SQL_EXCEPTION);
-      }
-    } finally {
-      DbUtils.closeQuietly(statement);
-      DbUtils.closeQuietly(connection);
     }
   }
 
