@@ -2,6 +2,7 @@ package com.xingcloud.server.task;
 
 import com.xingcloud.mysql.MySql_16seqid;
 import com.xingcloud.mysql.UpdateFunc;
+import com.xingcloud.mysql.UserProp;
 import com.xingcloud.server.helper.Constants;
 import com.xingcloud.server.helper.Pair;
 import com.xingcloud.server.helper.ProjectPropertyCache;
@@ -103,8 +104,13 @@ public class UserTaskBulkLoadV2 implements Runnable {
         String key = propKeys.get(i); // table name
         String value = propValues.get(i); // row value
 
-        //todo: if key is an invalid property
-        if (projectPropertyCache.getUserPro(key).getPropFunc() == UpdateFunc.inc) {
+        UserProp userProp = projectPropertyCache.getUserPro(key);
+        if (userProp == null) {
+          LOG.error("user property is null for key: " + key + ", project: " + project);
+          continue;
+        }
+
+        if (userProp.getPropFunc() == UpdateFunc.inc) {
           String incSql = "INSERT INTO `" + key + "` (uid,val) VALUES (" + user.getSamplingUid() + "," +
                   value + ") ON DUPLICATE KEY UPDATE val=val+" + value + ";";
 
@@ -267,8 +273,11 @@ public class UserTaskBulkLoadV2 implements Runnable {
 
         long startTime = System.currentTimeMillis();
         int tryTimes = 1;
-        while (true) {
+        boolean successful = false;
+        while (!successful) {
           try {
+            // for each retry, initialize connection to null
+            loadDataConnection = null;
             loadDataConnection = getNodeConn(project, nodeAddress);
             loadDataConnection.setAutoCommit(false);
 
@@ -285,23 +294,31 @@ public class UserTaskBulkLoadV2 implements Runnable {
             loadDataStatement.execute(loadDataSQL);
             loadDataConnection.commit();
 
-            break;
+            successful = true;
           } catch (SQLException sqle) {
-            LOG.error("load data failed. \t" + toString() + "\t" + sqle.getMessage());
-            if (loadDataConnection != null) {
-              loadDataConnection.rollback();
-            }
+            LOG.error("load data failed. " + toString() +
+              " retry load data in " + MS_WHEN_SQL_EXCEPTION * tryTimes / 1000 +
+              " seconds." + sqle.getMessage());
 
-            LOG.warn("retry load data in " + MS_WHEN_SQL_EXCEPTION * tryTimes / 1000 + " seconds.");
-            try {
-              Thread.sleep(MS_WHEN_SQL_EXCEPTION * tryTimes);
-              tryTimes = (tryTimes << 1) & Integer.MAX_VALUE;
-            } catch (InterruptedException ie1) {
-              break;
+            if (loadDataConnection != null) {
+              try {
+                loadDataConnection.rollback();
+              } catch (SQLException sqlexception) {
+                LOG.error(sqlexception.getMessage());
+              }
             }
           } finally {
             DbUtils.closeQuietly(loadDataStatement);
             DbUtils.closeQuietly(loadDataConnection);
+          }
+
+          if (!successful) {
+            try {
+              Thread.sleep(MS_WHEN_SQL_EXCEPTION * tryTimes);
+              tryTimes = (tryTimes << 1) & Integer.MAX_VALUE;
+            } catch (InterruptedException ie1) {
+              successful = true;
+            }
           }
         }
 

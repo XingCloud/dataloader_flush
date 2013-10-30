@@ -5,6 +5,7 @@ import com.xingcloud.mysql.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +18,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ProjectPropertyCache {
 
-
   public static final Log LOG = LogFactory.getLog(ProjectPropertyCache.class);
+
+  private static final int MS_WHEN_SQL_EXCEPTION = 5 * 1000;
+
   private String name = null;
   private List<UserProp> list = null;
 
@@ -42,15 +45,29 @@ public class ProjectPropertyCache {
   static public ProjectPropertyCache getProjectPropertyCacheFromProject(String project) {
     ProjectPropertyCache projectPropertyCache = cache.get(project);
     if (projectPropertyCache == null) {
-      List<UserProp> locallist = null;
-      try {
-        locallist = MySql_16seqid.getInstance().getUserProps(project);
-        projectPropertyCache = new ProjectPropertyCache(project, locallist);
-      } catch (Exception e) {
-        LOG.error("MySql_16seqid getProjectPropertyCacheFromProject " + project, e);
-        projectPropertyCache = new ProjectPropertyCache(project, null);
+      List<UserProp> userPropList = null;
+      int tryTimes = 1;
+      boolean successful = false;
+      while (!successful) {
+        try {
+          userPropList = MySql_16seqid.getInstance().getUserProps(project);
+          projectPropertyCache = new ProjectPropertyCache(project, userPropList);
+          cache.put(project, projectPropertyCache);
+
+          successful = true;
+        } catch (SQLException sqlexception) {
+          LOG.error("get user properties failed." +
+            " project: " + project +
+            " retry in " + MS_WHEN_SQL_EXCEPTION * tryTimes / 1000 + " seconds." + sqlexception.getMessage());
+
+          try {
+            Thread.sleep(MS_WHEN_SQL_EXCEPTION * tryTimes);
+            tryTimes = (tryTimes << 1) & Integer.MAX_VALUE;
+          } catch (InterruptedException ie) {
+            successful = true;
+          }
+        }
       }
-      cache.put(project, projectPropertyCache);
     }
     return projectPropertyCache;
   }
