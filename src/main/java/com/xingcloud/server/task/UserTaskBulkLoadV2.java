@@ -138,8 +138,6 @@ public class UserTaskBulkLoadV2 implements Runnable {
 
   /**
    * inc的属性不能通过load data，还是通过mysql connection statement。
-   *
-   * @param incSqls
    */
   private void incSqlsLoadToMySQL(Map<String, List<String>> incSqls) throws InterruptedException {
     Connection connection = null;
@@ -152,39 +150,46 @@ public class UserTaskBulkLoadV2 implements Runnable {
       Collections.sort(entry.getValue());
       LOG.info("project: " + project + ", node: " + entry.getKey() + ", insert sql count: " + entry.getValue().size());
 
-      try {
-        connection = getNodeConn(project, entry.getKey());
+      boolean successful = false;
+      int tryTimes = 1;
+      while (!successful) {
+        try {
+          // for each retry, initialize connection to null
+          connection = null;
+          connection = getNodeConn(project, entry.getKey());
+          connection.setAutoCommit(false);
 
-        // todo: Rewriting Batches
-        // refer: http://assets.en.oreilly.com/1/event/21/Connector_J%20Performance%20Gems%20Presentation.pdf
-
-        connection.setAutoCommit(false);
-        statement = connection.createStatement();
-
-        //todo: the following loop can be written in another way
-        int loopTimes = entry.getValue().size() / Constants.MYSQL_BATCH_UPDATE_SIZE + (entry.getValue().size() %
-                Constants.MYSQL_BATCH_UPDATE_SIZE > 0 ? 1 : 0);
-        for (int i = 0; i < loopTimes; i++) {
+          statement = connection.createStatement();
+          // currently, insert sql count is less than 100
           statement.clearBatch();
-          for (int j = 0; j < Constants.MYSQL_BATCH_UPDATE_SIZE; j++) {
-            int index = i * Constants.MYSQL_BATCH_UPDATE_SIZE + j;
-            if (index == entry.getValue().size())
-              break;
-            statement.addBatch(entry.getValue().get(index));
+          for (String sql : entry.getValue()) {
+            statement.addBatch(sql);
           }
           statement.executeBatch();
-          // todo: rollback and retry if fail
+
           connection.commit();
+          successful = true;
+        } catch (SQLException sqlex) {
+          LOG.error("inc sql failed. " + project + " " + entry.getKey() +
+            " retry in " + MS_WHEN_SQL_EXCEPTION * tryTimes / 1000 +
+            " seconds." + sqlex.getMessage());
+
+          if (connection != null) {
+            try {
+              connection.rollback();
+            } catch (SQLException sqlexception) {
+              LOG.error(sqlexception.getMessage());
+            }
+          }
+        } finally {
+          DbUtils.closeQuietly(statement);
+          DbUtils.closeQuietly(connection);
         }
-      } catch (SQLException e) {
-        //todo: infinite loop???
-        while (true) {
-          LOG.error("incSqlsLoadToMySQL error." + e.getMessage());
-          Thread.sleep(MS_WHEN_SQL_EXCEPTION);
+
+        if (!successful) {
+          Thread.sleep(MS_WHEN_SQL_EXCEPTION * tryTimes);
+          tryTimes = (tryTimes << 1) & Integer.MAX_VALUE;
         }
-      } finally {
-        DbUtils.closeQuietly(statement);
-        DbUtils.closeQuietly(connection);
       }
     }
   }
