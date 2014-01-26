@@ -35,25 +35,25 @@ public class Constants {
 
   public static boolean WRITE_SENDPROCESS_PER_BATCH = true;
 
-  public static int EVENT_ONCE_READ = 12 * 10000;
+  public static int EVENT_ONCE_READ = 10000;
 
   public static int USER_ONCE_READ = 3 * 10000;
 
-  public static int USER_BULK_LOAD_ONCE_READ = 500 * 10000;
+  public static int USER_BULK_LOAD_ONCE_READ = 10000;
 
-  public static int EXECUTOR_THREAD_COUNT = 16;
+  public static int EXECUTOR_THREAD_COUNT = 4;
 
   public static int DELAY_ONCE_READ = 10000;
 
   //  public static final String EVENT_TAIL_CONF_PATH = "/data/log/eventfixconfig";
-  public static final String EVENT_TAIL_CONF_PATH = "/data/log/event16config";
+  public static final String EVENT_TAIL_CONF_PATH = "/data/log/event-config";
 
   public static final String HBASE_FLUSH_POINT = "hbase_flush_checkpoint";
 
   public static final String SEND_PROCESS = "sendlog.process";
 
   //  public static final String USER_TAIL_CONF_PATH = "/data/log/userfixconfig";
-  public static final String USER_TAIL_CONF_PATH = "/data/log/user16config";
+  public static final String USER_TAIL_CONF_PATH = "/data/log/user-config";
 
 
   //  public static final String USER_LOAD_PATH = "/data/log/userload/
@@ -72,9 +72,9 @@ public class Constants {
   public static final int OFFLINE_DB = 15;
 
 
-  public static final int MYSQL_BL_THREADS = 8;
+  public static final int MYSQL_BL_THREADS = 2;
 
-  public static final int HBASE_FLUSH_THREADS = 16;
+  public static final int HBASE_FLUSH_THREADS = 2;
 
 
 }

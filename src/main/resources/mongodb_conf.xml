@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Root>
 	<mongodb>
-        <host>192.168.1.144</host>
+        <host>namenode</host>
         <port>27021</port>
         <pool_size>128</pool_size>
         <dbname>user_info</dbname>

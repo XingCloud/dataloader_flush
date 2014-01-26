@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Root>
-    <messagehost>192.168.1.142,192.168.1.143,192.168.1.144,192.168.1.145</messagehost>
+    <messagehost>dataloader0,dataloader1</messagehost>
     <site_data>/data/htdocs/elex_analytics/site_data</site_data>
         <store_log>/data/htdocs/elex_analytics/store_log</store_log>
             
 
     <mysql>
-        <host>192.168.1.134</host>
+        <host>namenode</host>
         <port>3306</port>
         <user>xingyun</user>
-        <password>xa</password>
+        <password>HHNCrrnQLmjTnVcC8LLv</password>
         <db>user_info</db>
     </mysql>
     <reader>20</reader>

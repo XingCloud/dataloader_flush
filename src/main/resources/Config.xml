@@ -21,7 +21,7 @@
     -->
     <!-- For production -->
     <mongodb>
-        <host>192.168.1.144</host>
+        <host>namenode</host>
         <port>27021</port>
         <pool_size>150</pool_size>
         <dbname>user_info</dbname>
@@ -36,7 +36,7 @@
     </mongodb>
 
     <redis>
-        <host>192.168.1.145</host>
+        <host>namenode</host>
         <port>6379</port>
         <max_active>1000</max_active>
         <max_idle>400</max_idle>
@@ -45,10 +45,10 @@
         <timeout>10000</timeout>
     </redis>
     <mysql>
-        <host>192.168.1.134</host>
+        <host>namenode</host>
         <port>3306</port>
         <user>xingyun</user>
-        <passwd>xa</passwd>
+        <passwd>HHNCrrnQLmjTnVcC8LLv</passwd>
         <max_active>10</max_active>
         <init_conn>2</init_conn>
         <evictable_idle_time>1800000</evictable_idle_time>
