@@ -15,7 +15,7 @@ jar="dataloader_flush_fix16tmp_test.jar";
 main="com.xingcloud.server.DataLoaderFlush16TmpWather"
 
 
-hostliststr="192.168.1.142,192.168.1.143,192.168.1.144,192.168.1.145"
+hostliststr="dataloader0,dataloader1"
 #hostliststr="127.0.0.1,localhost"
 host=`echo ${hostliststr}|awk '{split($1,a,",");for(key in a)print a[key];}'`
 for node in ${host} 

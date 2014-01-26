@@ -14,7 +14,7 @@ jar="dataloader_flush_fix16tmp_test.jar";
 
 fileencoding="-Dfile.encoding=UTF-8"
 verboses="-XX:+HeapDumpOnOutOfMemoryError"
-memarg="-server -Xms10g -Xmx10g -Xss256K"
+memarg="-server -Xms3g -Xmx3g -Xss256K"
 gcarg="-XX:SurvivorRatio=16 -XX:+UseConcMarkSweepGC -XX:NewSize=512M -XX:MaxNewSize=512M -XX:+UseAdaptiveSizePolicy -XX:-ExplicitGCInvokesConcurrent -XX:+UseCMSCompactAtFullCollection -XX:CMSFullGCsBeforeCompaction=2"
 
 main="com.xingcloud.server.DataLoaderFlush16TmpWather"
