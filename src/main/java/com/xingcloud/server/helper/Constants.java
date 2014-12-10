@@ -39,9 +39,9 @@ public class Constants {
 
   public static int USER_ONCE_READ = 3 * 10000;
 
-  public static int USER_BULK_LOAD_ONCE_READ = 200 * 10000;
+  public static int USER_BULK_LOAD_ONCE_READ = 500 * 10000;
 
-  public static int EXECUTOR_THREAD_COUNT = 16;
+  public static int EXECUTOR_THREAD_COUNT = 32;
 
   public static int DELAY_ONCE_READ = 10000;
 
