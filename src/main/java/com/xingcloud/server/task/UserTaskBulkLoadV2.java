@@ -259,13 +259,13 @@ public class UserTaskBulkLoadV2 implements Runnable {
     public Boolean call() throws Exception {
       String loadDataSQL = null;
       if (updateFunc == UpdateFunc.once) {
-        loadDataSQL = "load data CONCURRENT local infile 'ignore_me' " +
+        loadDataSQL = "load data local infile 'ignore_me' " +
                       " ignore into table " + tableName +
                       " character set utf8 " +
                       " fields terminated by ',' optionally enclosed by '\"' escaped by '\"'";
 //        loadDataSQL = String.format("LOAD DATA LOCAL INFILE 'ignore_me' IGNORE INTO TABLE %s;", tableName);
       } else if (updateFunc == UpdateFunc.cover) {
-        loadDataSQL = "load data CONCURRENT local infile 'ignore_me' " +
+        loadDataSQL = "load data local infile 'ignore_me' " +
                       " replace into table " + tableName +
                       " character set utf8 " +
                       " fields terminated by ',' optionally enclosed by '\"' escaped by '\"'";
