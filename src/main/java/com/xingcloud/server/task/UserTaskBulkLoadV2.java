@@ -31,7 +31,7 @@ public class UserTaskBulkLoadV2 implements Runnable {
 
   private static final Log LOG = LogFactory.getLog(UserTaskBulkLoadV2.class);
 
-  private static final int MS_WHEN_SQL_EXCEPTION = 5 * 1000;
+  private static final int MS_WHEN_SQL_EXCEPTION = 1 * 1000;
 
   private String project;
   private List<User_BulkLoad> users;
