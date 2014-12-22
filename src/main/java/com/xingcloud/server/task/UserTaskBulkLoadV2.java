@@ -321,6 +321,9 @@ public class UserTaskBulkLoadV2 implements Runnable {
             try {
               Thread.sleep(MS_WHEN_SQL_EXCEPTION * tryTimes);
               tryTimes = (tryTimes << 1) & Integer.MAX_VALUE;
+                if(tryTimes > 1024){  //最多等待10多分钟
+                    tryTimes = 1024;
+                }
             } catch (InterruptedException ie1) {
               successful = true;
             }
