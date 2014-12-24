@@ -25,16 +25,19 @@ public abstract class Tail {
         while (true) {
             try {
                 if(this.datafile.contains("user")){
-                    LOG.info("begin read process");}
+                    LOG.info("begin read process " + this.datafile);
+                }
                 this.readProcess();
                 long t1 = System.currentTimeMillis();
                 if(this.datafile.contains("user")){
-                    LOG.info("begin run");}
+                    LOG.info("begin run " + this.datafile);
+                }
                 this.run();
                 long t2 = System.currentTimeMillis();
                 System.out.println("config<" + this.configPath + ">:send log file " + this.day + " used time:" + (t2 - t1) + " ms");
                 if(this.datafile.contains("user")){
-                    LOG.info("config<" + this.configPath + ">:send log file " + this.day + " used time:" + (t2 - t1) + " ms");}
+                    LOG.info("config<" + this.configPath + ">:send log file " + this.day + " used time:" + (t2 - t1) + " ms " + this.datafile);
+                }
                 this.saveProcessFile();
 
                 this.rollDay();
@@ -76,7 +79,9 @@ public abstract class Tail {
         long jumpln = this.line;
         // 实现一个tail 并滚动到新的文件
         // 把日志按照行 批量发送到服务端分析
-
+        if(this.datafile.contains("user")){
+            LOG.info(this.datafile + " file name "+ fileName + " "+ this.day);
+        }
         File f = new File(fileName);
         while (!f.exists()) {
             System.out.println("LOG FILE NOT FOUND:" + f.getAbsolutePath());
@@ -84,8 +89,7 @@ public abstract class Tail {
             LOG.info("LOG FILE NOT FOUND:" + f.getAbsolutePath());}
             Thread.sleep(60000L);
         }
-        if(this.datafile.contains("user")){
-        LOG.info("file name "+ fileName);}
+
         BufferedTailReader reader = new BufferedTailReader(new InputStreamReader(
                 new FileInputStream(f), "UTF-8"), 1024 * 1024);
 
