@@ -24,14 +24,17 @@ public abstract class Tail {
 
         while (true) {
             try {
-                LOG.info("begin read process");
+                if(this.datafile.contains("user")){
+                    LOG.info("begin read process");}
                 this.readProcess();
                 long t1 = System.currentTimeMillis();
-                LOG.info("begin run");
+                if(this.datafile.contains("user")){
+                    LOG.info("begin run");}
                 this.run();
                 long t2 = System.currentTimeMillis();
                 System.out.println("config<" + this.configPath + ">:send log file " + this.day + " used time:" + (t2 - t1) + " ms");
-                LOG.info("config<" + this.configPath + ">:send log file " + this.day + " used time:" + (t2 - t1) + " ms");
+                if(this.datafile.contains("user")){
+                    LOG.info("config<" + this.configPath + ">:send log file " + this.day + " used time:" + (t2 - t1) + " ms");}
                 this.saveProcessFile();
 
                 this.rollDay();
@@ -77,10 +80,12 @@ public abstract class Tail {
         File f = new File(fileName);
         while (!f.exists()) {
             System.out.println("LOG FILE NOT FOUND:" + f.getAbsolutePath());
-            LOG.info("LOG FILE NOT FOUND:" + f.getAbsolutePath());
+            if(this.datafile.contains("user")){
+            LOG.info("LOG FILE NOT FOUND:" + f.getAbsolutePath());}
             Thread.sleep(60000L);
         }
-        LOG.info("file name "+ fileName);
+        if(this.datafile.contains("user")){
+        LOG.info("file name "+ fileName);}
         BufferedTailReader reader = new BufferedTailReader(new InputStreamReader(
                 new FileInputStream(f), "UTF-8"), 1024 * 1024);
 
@@ -194,7 +199,8 @@ public abstract class Tail {
                 // 休息
                 try {
                     this.writeProcess(this.day, alreadySentLog);
-                    LOG.info(new Date() + " send exception,then will sleep 15s");
+                    if(this.datafile.contains("user")){
+                    LOG.info(new Date() + " send exception,then will sleep 15s");}
                     System.out.println(new Date() + " send exception,then will sleep 15s");
                     Thread.sleep(15000L);
                 } catch (Throwable e1) {
