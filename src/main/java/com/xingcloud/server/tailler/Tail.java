@@ -2,6 +2,8 @@ package com.xingcloud.server.tailler;
 
 
 import com.xingcloud.server.helper.Constants;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.*;
 import java.util.Date;
@@ -11,7 +13,7 @@ import java.util.Properties;
 
 public abstract class Tail {
 
-
+    private static final Log LOG = LogFactory.getLog(Tail.class);
     /**
      * /data/log/stream.log projectid \t inneruid \t eventStr \t value \t
      * timestamp 没有空格 \t分隔 文件名变为stream.log.2012-11-06 这种
@@ -27,6 +29,7 @@ public abstract class Tail {
                 this.run();
                 long t2 = System.currentTimeMillis();
                 System.out.println("config<" + this.configPath + ">:send log file " + this.day + " used time:" + (t2 - t1) + " ms");
+                LOG.info("config<" + this.configPath + ">:send log file " + this.day + " used time:" + (t2 - t1) + " ms");
                 this.saveProcessFile();
 
                 this.rollDay();
@@ -72,6 +75,7 @@ public abstract class Tail {
         File f = new File(fileName);
         while (!f.exists()) {
             System.out.println("LOG FILE NOT FOUND:" + f.getAbsolutePath());
+            LOG.info("LOG FILE NOT FOUND:" + f.getAbsolutePath());
             Thread.sleep(60000L);
         }
         BufferedTailReader reader = new BufferedTailReader(new InputStreamReader(
@@ -187,6 +191,7 @@ public abstract class Tail {
                 // 休息
                 try {
                     this.writeProcess(this.day, alreadySentLog);
+                    LOG.info(new Date() + " send exception,then will sleep 15s");
                     System.out.println(new Date() + " send exception,then will sleep 15s");
                     Thread.sleep(15000L);
                 } catch (Throwable e1) {
