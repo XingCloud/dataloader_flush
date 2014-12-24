@@ -24,20 +24,11 @@ public abstract class Tail {
 
         while (true) {
             try {
-                if(this.datafile.contains("user")){
-                    LOG.info("begin read process " + this.datafile);
-                }
                 this.readProcess();
                 long t1 = System.currentTimeMillis();
-                if(this.datafile.contains("user")){
-                    LOG.info("begin run " + this.datafile);
-                }
                 this.run();
                 long t2 = System.currentTimeMillis();
                 System.out.println("config<" + this.configPath + ">:send log file " + this.day + " used time:" + (t2 - t1) + " ms");
-                if(this.datafile.contains("user")){
-                    LOG.info("config<" + this.configPath + ">:send log file " + this.day + " used time:" + (t2 - t1) + " ms " + this.datafile);
-                }
                 this.saveProcessFile();
 
                 this.rollDay();
