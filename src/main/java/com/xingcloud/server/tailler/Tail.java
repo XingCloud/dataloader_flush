@@ -24,8 +24,10 @@ public abstract class Tail {
 
         while (true) {
             try {
+                LOG.info("begin read process");
                 this.readProcess();
                 long t1 = System.currentTimeMillis();
+                LOG.info("begin run");
                 this.run();
                 long t2 = System.currentTimeMillis();
                 System.out.println("config<" + this.configPath + ">:send log file " + this.day + " used time:" + (t2 - t1) + " ms");
@@ -78,6 +80,7 @@ public abstract class Tail {
             LOG.info("LOG FILE NOT FOUND:" + f.getAbsolutePath());
             Thread.sleep(60000L);
         }
+        LOG.info("file name "+ fileName);
         BufferedTailReader reader = new BufferedTailReader(new InputStreamReader(
                 new FileInputStream(f), "UTF-8"), 1024 * 1024);
 
