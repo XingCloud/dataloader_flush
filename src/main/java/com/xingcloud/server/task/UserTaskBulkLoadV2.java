@@ -285,7 +285,7 @@ public class UserTaskBulkLoadV2 implements Runnable {
           StringBuilder sb = null;
 
           for(String data : loadDatas){
-              if(count % 5000 == 0){
+              if(count % 4000 == 0){
                   sb = new StringBuilder();
                   sbs.add(sb);
               }
