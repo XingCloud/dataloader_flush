@@ -9,10 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -47,14 +44,51 @@ public class UserTailer_BulkLoad extends Tail {
 //      }
 
       //random pids sort, let 4 dataloader load data in different pids sort .
-      String[] randomPids = usersMap.keySet().toArray(new String[usersMap.keySet().size()]);
-      Helper.shuffle(randomPids);
+//      String[] randomPids = usersMap.keySet().toArray(new String[usersMap.keySet().size()]);
+
+        //数据量的项目入库时间长，将量大的前10个项目单独shuffle，放到最前面，减少入库时间
+        List<Map.Entry<String, List<User_BulkLoad>>> entryList = new ArrayList<Map.Entry<String, List<User_BulkLoad>>>(usersMap.entrySet());
+        Collections.sort(entryList, new Comparator<Map.Entry<String, List<User_BulkLoad>>>() {
+            @Override
+            public int compare(Map.Entry<String, List<User_BulkLoad>> o1, Map.Entry<String, List<User_BulkLoad>> o2) {
+                if (o1.getValue().size() > o2.getValue().size()) {
+                    return -1;
+                }
+                return o1.getValue().size() == o2.getValue().size() ? 0 : 1;
+            }
+        });
+        int headCount = 10;
+        int headLength = entryList.size() > headCount ? headCount: entryList.size();
+        int tailLength = entryList.size() > headCount ? entryList.size() - headCount : 0;
+        String[] headPids = new String[headLength];
+        String[] tailPids = new String[tailLength];
+        for(int i =0 ; i< entryList.size(); i++){
+            if(i >= headCount){
+                tailPids[i - headCount] = entryList.get(i).getKey();
+            }else{
+                headPids[i] = entryList.get(i).getKey();
+            }
+        }
+
+        Helper.shuffle(headPids);
+        for (String pid : headPids) {
+            UserTaskBulkLoadV2 userTaskBulkLoadV2 = new UserTaskBulkLoadV2(pid, usersMap.get(pid));
+            userExecutor.execute(userTaskBulkLoadV2);
+        }
+
+        Helper.shuffle(tailPids);
+        for (String pid : tailPids) {
+            UserTaskBulkLoadV2 userTaskBulkLoadV2 = new UserTaskBulkLoadV2(pid, usersMap.get(pid));
+            userExecutor.execute(userTaskBulkLoadV2);
+        }
+
+/*      Helper.shuffle(randomPids);
       for (String pid : randomPids) {
 //        USerTask_BulkLoad uSerTask_bulkLoad = new USerTask_BulkLoad(pid, usersMap.get(pid));
 //        userExecutor.execute(uSerTask_bulkLoad);
         UserTaskBulkLoadV2 userTaskBulkLoadV2 = new UserTaskBulkLoadV2(pid, usersMap.get(pid));
         userExecutor.execute(userTaskBulkLoadV2);
-      }
+      }*/
 
       userExecutor.shutdown();
       boolean result = userExecutor.awaitTermination(Constants.EXECUTOR_TIME_MIN, TimeUnit.MINUTES);
