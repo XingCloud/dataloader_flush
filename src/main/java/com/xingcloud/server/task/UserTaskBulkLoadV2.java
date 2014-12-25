@@ -52,8 +52,8 @@ public class UserTaskBulkLoadV2 implements Runnable {
       LOG.info("enter user task. user size:" + users.size() + "\tproject: " + project);
 
       // (node, table) -> StringBuilder
-      Map<Pair<String, String>, StringBuilder> nodeTableSBMap =
-          new HashMap<Pair<String, String>, StringBuilder>();
+      Map<Pair<String, String>, List<String>> nodeTableSBMap =
+          new HashMap<Pair<String, String>, List<String>>();
       // node -> SQL list
       Map<String, List<String>> incSqls = new HashMap<String, List<String>>();
 
@@ -90,7 +90,7 @@ public class UserTaskBulkLoadV2 implements Runnable {
    * @param nodeTableSBMap
    */
   private void prepareUsers(Map<String, List<String>> incSqls,
-                            Map<Pair<String, String>, StringBuilder> nodeTableSBMap) {
+                            Map<Pair<String, String>, List<String>> nodeTableSBMap) {
     // sort List<User_BulkLoad> users, in user hash uid order.
     Collections.sort(users, new UserComparator());
 
@@ -122,15 +122,16 @@ public class UserTaskBulkLoadV2 implements Runnable {
           sqls.add(incSql);
         } else {
           Pair<String, String> nodeTablePair = new Pair<String, String>(nodeAddress, key);
-          StringBuilder sb = nodeTableSBMap.get(nodeTablePair);
-          if (sb == null) {
-            sb = new StringBuilder();
-            nodeTableSBMap.put(nodeTablePair, sb);
+          List<String> sbs = nodeTableSBMap.get(nodeTablePair);
+          if (sbs == null) {
+            sbs = new ArrayList<String>();
+            nodeTableSBMap.put(nodeTablePair, sbs);
           }
 
 //          sb.append(user.getSamplingUid()).append("\t").append(value).append("\n");
           // csv format
-          sb.append(user.getSamplingUid()).append(",").append(StringEscapeUtils.escapeCsv(value)).append("\n");
+//          sb.append(user.getSamplingUid()).append(",").append(StringEscapeUtils.escapeCsv(value)).append("\n");
+            sbs.add(user.getSamplingUid() + "," + StringEscapeUtils.escapeCsv(value)+ "\n");
         }
       }
     }
@@ -200,10 +201,10 @@ public class UserTaskBulkLoadV2 implements Runnable {
    *
    * @param nodeTableSBMap
    */
-  private void bulkLoad(Map<Pair<String, String>, StringBuilder> nodeTableSBMap) throws InterruptedException {
+  private void bulkLoad(Map<Pair<String, String>, List<String>> nodeTableSBMap) throws InterruptedException {
     List<Future<Boolean>> futures = new ArrayList<Future<Boolean>>();
 
-    for (Map.Entry<Pair<String, String>, StringBuilder> entry: nodeTableSBMap.entrySet()) {
+    for (Map.Entry<Pair<String, String>, List<String>> entry: nodeTableSBMap.entrySet()) {
       Pair<String, String> nodeTablePair = entry.getKey();
 
       UpdateFunc updateFunc = projectPropertyCache.getUserPro(nodeTablePair.second).getPropFunc();
@@ -240,13 +241,13 @@ public class UserTaskBulkLoadV2 implements Runnable {
 
     private String nodeAddress;
     private String tableName;
-    private StringBuilder loadData;
+    private List<String> loadDatas;
     private UpdateFunc updateFunc;
 
-    public LoadChildThread(String nodeAddress, String tableName, StringBuilder loadData, UpdateFunc updateFunc) {
+    public LoadChildThread(String nodeAddress, String tableName, List<String> loadDatas, UpdateFunc updateFunc) {
       this.nodeAddress = nodeAddress;
       this.tableName = tableName;
-      this.loadData = loadData;
+      this.loadDatas = loadDatas;
       this.updateFunc = updateFunc;
     }
 
@@ -277,60 +278,77 @@ public class UserTaskBulkLoadV2 implements Runnable {
         com.mysql.jdbc.Statement loadDataStatement = null;
 
         long startTime = System.currentTimeMillis();
+
+          List<StringBuilder> sbs =  new ArrayList<StringBuilder>();
+
+          int count = 0;
+          StringBuilder sb = null;
+
+          for(String data : loadDatas){
+              if(count % 5000 == 0){
+                  sb = new StringBuilder();
+                  sbs.add(sb);
+              }
+              sb.append(data);
+              count++;
+          }
+          for(StringBuilder loadData : sbs ){
         int tryTimes = 1;
         boolean successful = false;
-        while (!successful) {
-          try {
-            // for each retry, initialize connection to null
-            loadDataConnection = null;
-            loadDataConnection = getNodeConn(project, nodeAddress);
-            loadDataConnection.setAutoCommit(false);
 
-            Statement statement = loadDataConnection.createStatement();
-            statement = ((DelegatingStatement)statement).getInnermostDelegate();
-
-            assert statement != null && statement instanceof com.mysql.jdbc.Statement;
-
-            loadDataStatement = (com.mysql.jdbc.Statement)statement;
-            // by default, mysql jdbc driver sets sql_mode to STRICT_TRANS_TABLES
-            // by setting sql_mode to none, we disable data truncation exception
-            loadDataStatement.execute("set sql_mode=''");
-            loadDataStatement.setLocalInfileInputStream(IOUtils.toInputStream(loadData.toString(), Charsets.UTF_8));
-            loadDataStatement.execute(loadDataSQL);
-            loadDataConnection.commit();
-
-            successful = true;
-          } catch (SQLException sqle) {
-            LOG.error("load data failed. " + toString() +
-              " retry load data in " + MS_WHEN_SQL_EXCEPTION * tryTimes / 1000 +
-              " seconds." + sqle.getMessage());
-
-            if (loadDataConnection != null) {
+            while (!successful) {
               try {
-                loadDataConnection.rollback();
-              } catch (SQLException sqlexception) {
-                LOG.error(sqlexception.getMessage());
+                // for each retry, initialize connection to null
+                loadDataConnection = null;
+                loadDataConnection = getNodeConn(project, nodeAddress);
+                loadDataConnection.setAutoCommit(false);
+
+                Statement statement = loadDataConnection.createStatement();
+                statement = ((DelegatingStatement)statement).getInnermostDelegate();
+
+                assert statement != null && statement instanceof com.mysql.jdbc.Statement;
+
+                loadDataStatement = (com.mysql.jdbc.Statement)statement;
+                // by default, mysql jdbc driver sets sql_mode to STRICT_TRANS_TABLES
+                // by setting sql_mode to none, we disable data truncation exception
+                loadDataStatement.execute("set sql_mode=''");
+                loadDataStatement.setLocalInfileInputStream(IOUtils.toInputStream(loadData.toString(), Charsets.UTF_8));
+                loadDataStatement.execute(loadDataSQL);
+                loadDataConnection.commit();
+
+                successful = true;
+              } catch (SQLException sqle) {
+                LOG.error("load data failed. " + toString() +
+                  " retry load data in " + MS_WHEN_SQL_EXCEPTION * tryTimes / 1000 +
+                  " seconds." + sqle.getMessage());
+
+                if (loadDataConnection != null) {
+                  try {
+                    loadDataConnection.rollback();
+                  } catch (SQLException sqlexception) {
+                    LOG.error(sqlexception.getMessage());
+                  }
+                }
+              } finally {
+                DbUtils.closeQuietly(loadDataStatement);
+                DbUtils.closeQuietly(loadDataConnection);
+              }
+
+              if (!successful) {
+                try {
+                  Thread.sleep(MS_WHEN_SQL_EXCEPTION * tryTimes);
+                  tryTimes = (tryTimes << 1) & Integer.MAX_VALUE;
+                    if(tryTimes > 1024){  //最多等待10多分钟
+                        tryTimes = 1024;
+                    }
+                } catch (InterruptedException ie1) {
+                  successful = true;
+                }
               }
             }
-          } finally {
-            DbUtils.closeQuietly(loadDataStatement);
-            DbUtils.closeQuietly(loadDataConnection);
           }
 
-          if (!successful) {
-            try {
-              Thread.sleep(MS_WHEN_SQL_EXCEPTION * tryTimes);
-              tryTimes = (tryTimes << 1) & Integer.MAX_VALUE;
-                if(tryTimes > 1024){  //最多等待10多分钟
-                    tryTimes = 1024;
-                }
-            } catch (InterruptedException ie1) {
-              successful = true;
-            }
-          }
-        }
-
-        LOG.info(toString() + "\tcost time:\t" + (System.currentTimeMillis() - startTime) + "ms.");
+        LOG.info(toString() + "\tcost time:\t" + (System.currentTimeMillis() - startTime) + "ms.\tcount:\t" + count);
       }
 
       return true;
