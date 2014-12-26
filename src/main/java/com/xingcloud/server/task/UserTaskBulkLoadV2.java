@@ -285,7 +285,7 @@ public class UserTaskBulkLoadV2 implements Runnable {
           StringBuilder sb = null;
 
           for(String data : loadDatas){
-              if(count % 4000 == 0){
+              if(count % 3000 == 0){ //每个表分批入库，少量多次，减轻mysql压力，避免出现某些导入耗费时间太久，导致整体导入缓慢
                   sb = new StringBuilder();
                   sbs.add(sb);
               }
