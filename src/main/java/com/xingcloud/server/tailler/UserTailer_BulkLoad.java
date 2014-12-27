@@ -46,7 +46,7 @@ public class UserTailer_BulkLoad extends Tail {
       //random pids sort, let 4 dataloader load data in different pids sort .
 //      String[] randomPids = usersMap.keySet().toArray(new String[usersMap.keySet().size()]);
 
-        //数据量的项目入库时间长，将量大的前10个项目单独shuffle，放到最前面，减少入库时间
+        //数据量大的项目入库时间长，将量大的前16个项目单独shuffle，放到最前面，减少入库时间
         List<Map.Entry<String, List<User_BulkLoad>>> entryList = new ArrayList<Map.Entry<String, List<User_BulkLoad>>>(usersMap.entrySet());
         Collections.sort(entryList, new Comparator<Map.Entry<String, List<User_BulkLoad>>>() {
             @Override
@@ -57,7 +57,7 @@ public class UserTailer_BulkLoad extends Tail {
                 return o1.getValue().size() == o2.getValue().size() ? 0 : 1;
             }
         });
-        int headCount = 16;
+        int headCount = 24;
         int headLength = entryList.size() > headCount ? headCount: entryList.size();
         int tailLength = entryList.size() > headCount ? entryList.size() - headCount : 0;
         String[] headPids = new String[headLength];
