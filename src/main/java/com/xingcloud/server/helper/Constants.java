@@ -41,7 +41,7 @@ public class Constants {
 
   public static int USER_BULK_LOAD_ONCE_READ = 500 * 10000;
 
-  public static int EXECUTOR_THREAD_COUNT = 3;
+  public static int EXECUTOR_THREAD_COUNT = 2;
 
   public static int DELAY_ONCE_READ = 10000;
 
@@ -72,7 +72,7 @@ public class Constants {
   public static final int OFFLINE_DB = 15;
 
 
-  public static final int MYSQL_BL_THREADS = 16;
+  public static final int MYSQL_BL_THREADS = 24;
 
   public static final int HBASE_FLUSH_THREADS = 16;
 
