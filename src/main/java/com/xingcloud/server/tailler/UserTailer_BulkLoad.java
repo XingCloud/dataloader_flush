@@ -57,7 +57,9 @@ public class UserTailer_BulkLoad extends Tail {
                 return o1.getValue().size() == o2.getValue().size() ? 0 : 1;
             }
         });
+
         int headCount = 30;
+
         int headLength = entryList.size() > headCount ? headCount: entryList.size();
         int tailLength = entryList.size() > headCount ? entryList.size() - headCount : 0;
         String[] headPids = new String[headLength];
