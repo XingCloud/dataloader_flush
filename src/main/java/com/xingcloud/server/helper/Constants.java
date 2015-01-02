@@ -1,5 +1,7 @@
 package com.xingcloud.server.helper;
 
+import com.xingcloud.mysql.MySqlDict;
+
 /**
  * User: IvyTang
  * Date: 12-11-28
@@ -76,5 +78,7 @@ public class Constants {
 
   public static final int HBASE_FLUSH_THREADS = 16;
 
+  public static final MySqlDict dict = MySqlDict.getInstance();
 
+  public static final String userColumnFamily = "v";
 }
