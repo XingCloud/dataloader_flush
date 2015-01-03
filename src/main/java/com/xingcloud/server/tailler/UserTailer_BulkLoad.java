@@ -38,8 +38,8 @@ public class UserTailer_BulkLoad extends Tail {
     try {
       FlushExecutor userExecutor = new FlushExecutor();
         for (String pid : usersMap.keySet()) {
-            UserTaskBulkLoadV3 userTaskBulkLoadV2 = new UserTaskBulkLoadV3(pid, usersMap.get(pid));
-            userExecutor.execute(userTaskBulkLoadV2);
+            UserTaskBulkLoadV3 userTaskBulkLoadV3 = new UserTaskBulkLoadV3(pid, usersMap.get(pid));
+            userExecutor.execute(userTaskBulkLoadV3);
         }
 
       userExecutor.shutdown();
