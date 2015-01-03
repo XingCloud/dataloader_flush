@@ -54,7 +54,7 @@ public class Constants {
 
   public static final String SEND_PROCESS = "sendlog.process";
 
-    public static final String USER_TAIL_CONF_PATH = "/data/liqiang/flush/user16config";
+  public static final String USER_TAIL_CONF_PATH = "/data/liqiang/flush/user16config";
 //  public static final String USER_TAIL_CONF_PATH = "/data/log/user16config";
 
 
