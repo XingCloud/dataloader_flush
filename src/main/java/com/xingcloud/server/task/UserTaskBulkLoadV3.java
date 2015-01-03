@@ -133,12 +133,10 @@ public class UserTaskBulkLoadV3 implements Runnable {
     private void bulkLoad(Map<String, Map<UpdateFunc, Map<byte[], Object>>> nodeTableSBMap) throws InterruptedException {
 
         List<Future<Boolean>> futures = new ArrayList<Future<Boolean>>();
-        System.out.println("---begin bulkload--");
         for (Map.Entry<String, Map<UpdateFunc, Map<byte[], Object>>> entry : nodeTableSBMap.entrySet()) {
             UserChildThread userChildThread = new UserChildThread(entry.getKey(), project, entry.getValue());
             futures.add(MySQLBulkLoadExecutor.getInstance().submit(userChildThread));
         }
-        System.out.println("---end bulkload--");
         for (Future<Boolean> booleanFuture : futures) {
             try {
                 booleanFuture.get();
@@ -165,7 +163,6 @@ class UserChildThread implements Callable<Boolean> {
     }
 
     public Boolean call() {
-        System.out.println("---begin UserChildThread--");
         int count = 0;
         for (Map.Entry<UpdateFunc, Map<byte[], Object>> users : attrs.entrySet()) {
             count += users.getValue().size();
@@ -209,9 +206,6 @@ class UserChildThread implements Callable<Boolean> {
                     LOG.info(project + " " + node + " " + users.getKey().name() + " put hbase size:" + users.getValue().size() +
                             " completed .tablename is " + Helper.getHBaseTableName(project) + " using "
                             + (System.currentTimeMillis() - currentTime) + "ms");
-                    System.out.println(project + " " + node + " " + users.getKey().name() + " put hbase size:" + users.getValue().size() +
-                            " completed .tablename is " + Helper.getHBaseTableName(project) + " using "
-                            + (System.currentTimeMillis() - currentTime) + "ms");
                     break;
                 } catch (Exception e) {
                     if (e.getMessage().contains("interrupted")) {
@@ -242,7 +236,6 @@ class UserChildThread implements Callable<Boolean> {
             }
         }
         LOG.info("enter run user task. " + project + " user size:" + count);
-        System.out.println("enter run user task. " + project + " user size:" + count);
         return true;
     }
 
