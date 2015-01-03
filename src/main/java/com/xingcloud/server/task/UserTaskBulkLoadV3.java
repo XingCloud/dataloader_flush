@@ -108,6 +108,8 @@ public class UserTaskBulkLoadV3 implements Runnable {
                     lists.put(UpdateFunc.inc, new HashMap<byte[], Object>());
                     lists.put(UpdateFunc.cover, new HashMap<byte[], Object>());
                     lists.put(UpdateFunc.once, new HashMap<byte[], Object>());
+
+                    nodeTableSBMap.put(nodeAddress, lists);
                 }
 
                 Object result = value;
