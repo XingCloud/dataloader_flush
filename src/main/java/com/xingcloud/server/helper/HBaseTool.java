@@ -29,6 +29,7 @@ public class HBaseTool {
 
         for(int i=0;i<=15;i++){
             String node = "node" + i;
+            System.out.println(node);
             Configuration conf = HBaseConf.getInstance().getHBaseConf(node);
             HBaseAdmin admin = new HBaseAdmin(conf);
             admin.createTable(tableDescriptor);
