@@ -39,7 +39,7 @@ public class Constants {
 
   public static int USER_ONCE_READ = 3 * 10000;
 
-  public static int USER_BULK_LOAD_ONCE_READ = 200 * 10000;
+  public static int USER_BULK_LOAD_ONCE_READ = 400 * 10000;
 
   public static int EXECUTOR_THREAD_COUNT = 16;
 
@@ -72,7 +72,7 @@ public class Constants {
   public static final int OFFLINE_DB = 15;
 
 
-  public static final int MYSQL_BL_THREADS = 10;
+  public static final int MYSQL_BL_THREADS = 16;
 
   public static final int HBASE_FLUSH_THREADS = 16;
 
