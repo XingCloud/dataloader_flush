@@ -116,6 +116,7 @@ public class LoadData {
                             successful = true;
                         } catch (SQLException sqle) {
                             System.out.println(sqle.getMessage());
+                            sqle.printStackTrace();
                             LOG.error("load data failed. " + toString() +
                                     " retry load data in " + 10 * tryTimes / 1000 +
                                     " seconds." + sqle.getMessage());
