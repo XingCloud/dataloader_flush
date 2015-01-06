@@ -67,7 +67,8 @@ public class LoadData {
                 String line;
 
                 while((line =  reader.readLine()) != null){
-                    loadData.append(line);
+                    String[] xx = line.split("\t");
+                    loadData.append(xx[0]).append(",").append(xx[1]).append("\n");
                 }
                 System.out.print(".");
             } catch (Exception e) {
@@ -81,7 +82,7 @@ public class LoadData {
                 loadDataSQL = "load data local infile 'ignore_me' " +
                         " replace into table " + tableName +
                         " character set utf8 " +
-                        " fields terminated by '\t' optionally enclosed by '\"' escaped by '\"'";
+                        " fields terminated by ',' optionally enclosed by '\"' escaped by '\"'";
 //        loadDataSQL = String.format("LOAD DATA LOCAL INFILE 'ignore_me' REPLACE INTO TABLE %s;", tableName);
 
             if (loadDataSQL != null) {
