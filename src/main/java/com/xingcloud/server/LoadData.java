@@ -69,8 +69,11 @@ public class LoadData {
                 while((line =  reader.readLine()) != null){
                     loadData.append(line);
                 }
+                System.out.print(".");
             } catch (Exception e) {
+                e.printStackTrace();
             }
+            System.out.println("---");
             System.out.println(project + ":" + tableName + " begin load");
 
             String loadDataSQL = null;
