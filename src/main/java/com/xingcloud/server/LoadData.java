@@ -27,7 +27,7 @@ public class LoadData {
     private static final Log LOG = LogFactory.getLog(LoadData.class);
 
     public static void main(String[] args){
-        String[] projects = {"istart123","istartsurf","key-find","lightning-newtab","lightning-speedi","mystartsearch","nationzoom","newtab2","omiga-plus","portaldosites","qone8","quick-start","qvo6","searchprotect","sof-dp","sof-dsk","sof-gdp","sof-hpprotect","sof-ient","sof-isafe","sof-mb","sof-newgdp","sof-nts","sof-windowspm","sof-wpm","sof-yacnvd","sof-zip","sweet-page","usv9","v9","vi-view","webssearches"};
+        String[] projects = {"omiga-plus","portaldosites","qone8","quick-start","qvo6","searchprotect","sof-dp","sof-dsk","sof-gdp","sof-hpprotect","sof-ient","sof-isafe","sof-mb","sof-newgdp","sof-nts","sof-windowspm","sof-wpm","sof-yacnvd","sof-zip","sweet-page","usv9","v9","vi-view","webssearches","istart123","istartsurf","key-find","lightning-newtab","lightning-speedi","mystartsearch","nationzoom","newtab2"};
         String[] attrs = {"ref0","register_time","geoip"};
         ExecutorService SERVICE = Executors.newFixedThreadPool(4);
 
