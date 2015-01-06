@@ -36,7 +36,7 @@ public class LoadData {
                 SERVICE.submit(new Load(p,t));
             }
         }
-
+        SERVICE.shutdown();
     }
 
     private static Connection getNodeConn(String project, String nodeAddress) throws SQLException {
