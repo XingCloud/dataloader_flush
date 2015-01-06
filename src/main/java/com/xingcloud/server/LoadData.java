@@ -29,7 +29,7 @@ public class LoadData {
     public static void main(String[] args){
         String[] projects = {"22apple","22find","aartemis","awesomehp","delta-homes","do-search","dosearches","istart123","istartsurf","key-find","lightning-newtab","lightning-speedi","mystartsearch","nationzoom","newtab2","omiga-plus","portaldosites","qone8","quick-start","qvo6","searchprotect","sof-dp","sof-dsk","sof-gdp","sof-hpprotect","sof-ient","sof-isafe","sof-mb","sof-newgdp","sof-nts","sof-windowspm","sof-wpm","sof-yacnvd","sof-zip","sweet-page","usv9","v9","vi-view","webssearches"};
         String[] attrs = {"ref0","register_time","geoip"};
-        ExecutorService SERVICE = Executors.newFixedThreadPool(10);
+        ExecutorService SERVICE = Executors.newFixedThreadPool(8);
 
         for(String p : projects){
             for(String t: attrs){
@@ -71,7 +71,7 @@ public class LoadData {
                 }
             } catch (Exception e) {
             }
-
+            System.out.println(project + ":" + tableName + " begin load");
 
             String loadDataSQL = null;
 
