@@ -77,9 +77,7 @@ public class LoadData {
             System.out.println("---");
             System.out.println(project + ":" + tableName + " begin load");
 
-            String loadDataSQL = null;
-
-                loadDataSQL = "load data local infile 'ignore_me' " +
+            String loadDataSQL = "load data local infile 'ignore_me' " +
                         " replace into table " + tableName +
                         " character set utf8 " +
                         " fields terminated by ',' optionally enclosed by '\"' escaped by '\"'";
@@ -98,9 +96,10 @@ public class LoadData {
 
                     while (!successful) {
                         try {
-                            // for each retry, initialize connection to null
-                            loadDataConnection = null;
-                            loadDataConnection = getNodeConn(project, "node6");
+
+
+                            System.out.println("get connection");
+                            loadDataConnection = MySql_16seqid.getInstance().getConnLocalNode(project);
                             loadDataConnection.setAutoCommit(false);
 
                             Statement statement = loadDataConnection.createStatement();
@@ -113,11 +112,13 @@ public class LoadData {
                             // by setting sql_mode to none, we disable data truncation exception
                             loadDataStatement.execute("set sql_mode=''");
                             loadDataStatement.setLocalInfileInputStream(IOUtils.toInputStream(loadData.toString(), Charsets.UTF_8));
+                            System.out.println("exe");
                             loadDataStatement.execute(loadDataSQL);
                             loadDataConnection.commit();
 
                             successful = true;
                         } catch (SQLException sqle) {
+                            System.out.println(sqle.getMessage());
                             LOG.error("load data failed. " + toString() +
                                     " retry load data in " + 10 * tryTimes / 1000 +
                                     " seconds." + sqle.getMessage());
