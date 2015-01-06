@@ -60,6 +60,7 @@ public class LoadData {
             FileInputStream fis = null;
             BufferedReader reader = null;
             StringBuilder loadData = new StringBuilder("");
+            System.out.println(project + ":" + tableName);
             try {
                 fis = new FileInputStream("/data2/loadmysqltohdfs/" + project + "/" + tableName + ".txt");
                 reader = new BufferedReader(new InputStreamReader(fis));
