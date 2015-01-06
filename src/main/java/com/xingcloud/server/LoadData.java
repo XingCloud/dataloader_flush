@@ -67,7 +67,7 @@ public class LoadData {
                 String line;
 
                 while((line =  reader.readLine()) != null){
-                    String[] xx = line.split("\t");
+                    String[] xx = line.trim().split("\t");
                     loadData.append(xx[0]).append(",").append(xx[1]).append("\n");
                 }
                 System.out.print(".");
