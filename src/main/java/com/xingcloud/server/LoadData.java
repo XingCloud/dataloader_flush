@@ -27,9 +27,9 @@ public class LoadData {
     private static final Log LOG = LogFactory.getLog(LoadData.class);
 
     public static void main(String[] args){
-        String[] projects = {"22apple","22find","aartemis","awesomehp","delta-homes","do-search","dosearches","istart123","istartsurf","key-find","lightning-newtab","lightning-speedi","mystartsearch","nationzoom","newtab2","omiga-plus","portaldosites","qone8","quick-start","qvo6","searchprotect","sof-dp","sof-dsk","sof-gdp","sof-hpprotect","sof-ient","sof-isafe","sof-mb","sof-newgdp","sof-nts","sof-windowspm","sof-wpm","sof-yacnvd","sof-zip","sweet-page","usv9","v9","vi-view","webssearches"};
+        String[] projects = {"istart123","istartsurf","key-find","lightning-newtab","lightning-speedi","mystartsearch","nationzoom","newtab2","omiga-plus","portaldosites","qone8","quick-start","qvo6","searchprotect","sof-dp","sof-dsk","sof-gdp","sof-hpprotect","sof-ient","sof-isafe","sof-mb","sof-newgdp","sof-nts","sof-windowspm","sof-wpm","sof-yacnvd","sof-zip","sweet-page","usv9","v9","vi-view","webssearches"};
         String[] attrs = {"ref0","register_time","geoip"};
-        ExecutorService SERVICE = Executors.newFixedThreadPool(8);
+        ExecutorService SERVICE = Executors.newFixedThreadPool(4);
 
         for(String p : projects){
             for(String t: attrs){
@@ -39,9 +39,6 @@ public class LoadData {
         SERVICE.shutdown();
     }
 
-    private static Connection getNodeConn(String project, String nodeAddress) throws SQLException {
-        return MySql_16seqid.getInstance().getConnByNode(project, nodeAddress);
-    }
 
     static class Load implements Runnable{
 
@@ -99,7 +96,7 @@ public class LoadData {
 
 
                             System.out.println("get connection");
-                            loadDataConnection = MySql_16seqid.getInstance().getConnLocalNode(project);
+                            loadDataConnection = MySql_16seqid.getInstance().getConnByNode(project,"node6");
                             loadDataConnection.setAutoCommit(false);
 
                             Statement statement = loadDataConnection.createStatement();
