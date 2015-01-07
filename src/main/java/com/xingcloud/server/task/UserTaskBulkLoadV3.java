@@ -18,6 +18,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.client.HConnectionManager;
 import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -167,7 +168,7 @@ class UserChildThread implements Callable<Boolean> {
         for (Map.Entry<UpdateFunc, Map<byte[], Object>> users : attrs.entrySet()) {
             count += users.getValue().size();
             while (true) {
-                HTable table = null;
+                HTableInterface table = null;
                 long currentTime = System.currentTimeMillis();
                 try {
 
@@ -185,8 +186,7 @@ class UserChildThread implements Callable<Boolean> {
                         puts.add(put);
                     }
 
-                    // todo: use connection pool?
-                    table = new HTable(HBaseConf.getInstance().getHBaseConf(node), "user_attribute");
+                    table = HBaseResourceManager.getInstance().getTable(node, "user_attribute");
                     table.setAutoFlush(false);
                     table.setWriteBufferSize(Constants.WRITE_BUFFER_SIZE);
 
