@@ -193,7 +193,7 @@ class UserChildThread implements Callable<Boolean> {
                     if (users.getKey() == UpdateFunc.cover) {
                         table.put(puts);
                     } else if (users.getKey() == UpdateFunc.once) {
-                        for (Put put : puts) {
+                        for (Put put : puts) { //TODO: GET AND SET
                             table.checkAndPut(put.getRow(), Constants.userColumnFamily.getBytes(), Constants.userColumnFamily.getBytes(), null, put);
                         }
                     } else if (users.getKey() == UpdateFunc.inc) {
