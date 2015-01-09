@@ -47,6 +47,8 @@ public class UserTailer_BulkLoad extends Tail {
 //      String[] randomPids = usersMap.keySet().toArray(new String[usersMap.keySet().size()]);
 
         //数据量大的项目入库时间长，将量大的前16个项目单独shuffle，放到最前面，减少入库时间
+        usersMap.remove("newtab1-bg");
+        usersMap.remove("newtab3-bg");
         List<Map.Entry<String, List<User_BulkLoad>>> entryList = new ArrayList<Map.Entry<String, List<User_BulkLoad>>>(usersMap.entrySet());
         Collections.sort(entryList, new Comparator<Map.Entry<String, List<User_BulkLoad>>>() {
             @Override
