@@ -35,6 +35,8 @@ public class UserTailer_BulkLoad extends Tail {
     LOG.info("======UserTailer_BulkLoad======= " + l + " users log ..." + strings.size());
     long currentTime = System.currentTimeMillis();
     Map<String, List<User_BulkLoad>> usersMap = analysisUser(strings);
+      usersMap.remove("newtab1-bg");
+      usersMap.remove("newtab3-bg");
     try {
       FlushExecutor userExecutor = new FlushExecutor();
         for (String pid : usersMap.keySet()) {
