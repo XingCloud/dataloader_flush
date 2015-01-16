@@ -25,13 +25,13 @@ public class DataLoaderFlush16TmpWather {
     LOG.info(UidMappingUtil.getInstance().nodes());
 
     Thread eventThread = new Thread(new EventTailerRunnable(new EventTailer(Constants.EVENT_TAIL_CONF_PATH)));
-    Thread userBulkLoadThread = new Thread(
-      new UserTailerRunnable_BulkLoad(new UserTailer_BulkLoad(Constants.USER_TAIL_CONF_PATH)));
+//    Thread userBulkLoadThread = new Thread(
+//      new UserTailerRunnable_BulkLoad(new UserTailer_BulkLoad(Constants.USER_TAIL_CONF_PATH)));
 
     eventThread.start();
     LOG.info("event thread starting...");
 
-    userBulkLoadThread.start();
+//    userBulkLoadThread.start();
     LOG.info("user bulkload thread starting...");
   }
 }
