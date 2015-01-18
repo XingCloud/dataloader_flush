@@ -118,31 +118,33 @@ public class UserTailer_BulkLoad extends Tail {
         LOG.warn(log);
         continue;
       }
-      long samplingUid = UidMappingUtil.getInstance().decorateWithMD5(Long.valueOf(tmps[1]));
-      List<String> propKeys = new ArrayList<String>();
-      List<String> propValues = new ArrayList<String>();
-      try {
-        Map jsonMap = objectMapper.readValue(tmps[2], Map.class);
-        for (Object entry : jsonMap.entrySet()) {
-          if (entry instanceof Map.Entry) {
-            if (((Map.Entry) entry).getKey() != null && ((Map.Entry) entry).getValue() != null) {
-              propKeys.add(((Map.Entry) entry).getKey().toString());
-              propValues.add(((Map.Entry) entry).getValue().toString());
+        try {
+          long samplingUid = UidMappingUtil.getInstance().decorateWithMD5(Long.valueOf(tmps[1]));
+          List<String> propKeys = new ArrayList<String>();
+          List<String> propValues = new ArrayList<String>();
+
+            Map jsonMap = objectMapper.readValue(tmps[2], Map.class);
+            for (Object entry : jsonMap.entrySet()) {
+                if (entry instanceof Map.Entry) {
+                    if (((Map.Entry) entry).getKey() != null && ((Map.Entry) entry).getValue() != null) {
+                        propKeys.add(((Map.Entry) entry).getKey().toString());
+                        propValues.add(((Map.Entry) entry).getValue().toString());
+                    }
+                }
             }
+
+          User_BulkLoad user = new User_BulkLoad(tmps[0], Long.valueOf(tmps[1]), samplingUid, propKeys, propValues);
+          List<User_BulkLoad> users = usersMap.get(tmps[0]);
+          if (users == null) {
+            users = new ArrayList<User_BulkLoad>();
+            usersMap.put(tmps[0], users);
           }
+          users.add(user);
+        } catch (IOException e) {
+            LOG.warn("json parse error." + e.getMessage());
+            LOG.warn(log);
+            continue;
         }
-      } catch (IOException e) {
-        LOG.warn("json parse error." + e.getMessage());
-        LOG.warn(log);
-        continue;
-      }
-      User_BulkLoad user = new User_BulkLoad(tmps[0], Long.valueOf(tmps[1]), samplingUid, propKeys, propValues);
-      List<User_BulkLoad> users = usersMap.get(tmps[0]);
-      if (users == null) {
-        users = new ArrayList<User_BulkLoad>();
-        usersMap.put(tmps[0], users);
-      }
-      users.add(user);
     }
     return usersMap;
   }
