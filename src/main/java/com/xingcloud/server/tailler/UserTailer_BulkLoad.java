@@ -140,7 +140,7 @@ public class UserTailer_BulkLoad extends Tail {
             usersMap.put(tmps[0], users);
           }
           users.add(user);
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOG.warn("json parse error." + e.getMessage());
             LOG.warn(log);
             continue;
