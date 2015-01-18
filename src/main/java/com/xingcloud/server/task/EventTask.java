@@ -126,8 +126,7 @@ class EventFlushChildTask implements Runnable {
                 + (System.currentTimeMillis() - currentTime) + "ms");
         break;
       } catch (Exception e) {
-        break;
-        /*if (e.getMessage().contains("interrupted")) {
+        if (e.getMessage().contains("interrupted")) {
           break;
         }
         LOG.error(project + hbaseip + e.getMessage(), e);
@@ -142,7 +141,7 @@ class EventFlushChildTask implements Runnable {
           Thread.sleep(5000);
         } catch (InterruptedException e1) {
           break;
-        }*/
+        }
       } finally {
         try {
           if (table != null) {
