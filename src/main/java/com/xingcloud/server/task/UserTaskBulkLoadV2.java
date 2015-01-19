@@ -335,6 +335,7 @@ public class UserTaskBulkLoadV2 implements Runnable {
                 DbUtils.closeQuietly(loadDataConnection);
               }
 
+
               if (!successful) {
                 try {
                   Thread.sleep(MS_WHEN_SQL_EXCEPTION * tryTimes);
