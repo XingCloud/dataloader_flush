@@ -81,6 +81,8 @@ public class EventTailer extends Tail {
                 events.add(event);
             } catch (UnsupportedEncodingException e) {
                 continue;
+            } catch (Exception e){
+                LOG.warn(log);
             }
 
         }
