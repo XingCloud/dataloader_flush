@@ -72,7 +72,7 @@ public class Constants {
   public static final int OFFLINE_DB = 15;
 
 
-  public static final int MYSQL_BL_THREADS = 14;
+  public static final int MYSQL_BL_THREADS = 10;
 
   public static final int HBASE_FLUSH_THREADS = 16;
 
