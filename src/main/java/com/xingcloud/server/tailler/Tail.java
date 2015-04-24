@@ -95,6 +95,7 @@ public abstract class Tail {
         }
         long count = 0;
         long allSentLog = jumpln;
+        int retry = 3;
         try {
             while (true) {
 
@@ -110,7 +111,10 @@ public abstract class Tail {
                     }
                     if (this.hasNextLogDataFile()) {
                         //存在新的日志文件
-                        break;
+
+                        if(retry-- == 0) {
+                            break;
+                        }
                     }
                     Thread.sleep(sleepTime);
                 } else {
@@ -228,7 +232,7 @@ public abstract class Tail {
     static final String PROP_DAY = "day";
 
     private int batchSize = 1000;
-    private long nologSleepTime = 200*1000L;
+    private long nologSleepTime = 30*1000L;
     private boolean logProcessPerBatch = false;
 
     protected String datadir = "/data/log/";
