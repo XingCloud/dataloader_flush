@@ -109,9 +109,8 @@ public abstract class Tail {
                         this.writeProcess(this.day, allSentLog);
 
                     }
-                    if (this.hasNextLogDataFile()) {
-                        //存在新的日志文件
-
+                    if (this.hasNextLogDataFile()) {//存在新的日志文件
+                        //此处加重试，防止旧的日志文件未入完
                         if(retry-- == 0) {
                             break;
                         }
