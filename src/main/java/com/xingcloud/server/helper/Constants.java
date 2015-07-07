@@ -35,7 +35,7 @@ public class Constants {
 
     public static boolean WRITE_SENDPROCESS_PER_BATCH = true;
 
-    public static int EVENT_ONCE_READ = 20 * 10000;
+    public static int EVENT_ONCE_READ = 8 * 10000;
 
     public static int USER_ONCE_READ = 3 * 10000;
 
