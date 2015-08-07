@@ -1,5 +1,7 @@
 package com.xingcloud.server.task;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
 import com.xingcloud.server.helper.Constants;
 import com.xingcloud.server.helper.Helper;
 import com.xingcloud.xa.uidmapping.UidMappingUtil;
@@ -11,6 +13,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.IOUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -130,6 +133,8 @@ class EventFlushChildTask implements Runnable {
           break;
         }
         LOG.error(project + hbaseip + e.getMessage(), e);
+        //  write error log
+        monitorErrorLog(e);
         if (e.getMessage().contains("HConnectionImplementation") && e.getMessage().contains("closed")) {
           HConnectionManager.deleteConnection(HBaseConf.getInstance().getHBaseConf(hbaseip), true);
           LOG.warn("delete connection to " + hbaseip);
@@ -154,4 +159,21 @@ class EventFlushChildTask implements Runnable {
       }
     }
   }
+
+
+	/**
+	 * 
+	 * monitor error log 
+	 * 
+	 * @param e
+	 */
+	private synchronized void monitorErrorLog(Exception e) {
+		File file = new File("/data/log/monitor_hbase_log.txt");
+		try {
+			Files.write(e.toString(), file, Charsets.UTF_8);
+		} catch (IOException e2) {
+			LOG.error("write error log failure:"+file.toString()+" error:"+e.toString());
+			e2.printStackTrace();
+		}
+	}
 }
